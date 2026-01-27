@@ -124,6 +124,14 @@ FIREBASE_SERVICE_ACCOUNT=''          # Firebase Service Account JSON 內容
 
 ### 重要提醒
 
+```
+如果你不是用 Docker 跑後端，而是直接在電腦上啟動（例如 npm run dev）：
+Docker 環境中
+DB_HOST 通常會是 container 名稱（例如 db、postgres）
+但在本機直接跑時
+👉 後端程式只能透過 localhost 才能連到你電腦上的資料庫
+```
+
 - **本機開發**: 若要在本機直接執行後端服務（非 Docker），需將 `DB_HOST` 改為 `localhost`
 - **安全性**: 生產環境務必修改 `JWT_SECRET` 和所有預設密碼
 - **資料庫同步**: 生產環境請將 `DB_SYNCHRONIZE` 設為 `false`，使用 migration 管理資料表結構
@@ -304,9 +312,16 @@ docker compose exec backend npm run init:schema
 
 ```bash
 # 使用 psql 連線
+# 進入 postgres 容器，打開 test 資料庫，使用 testHexschool 帳號操作
+# cli介面...=.= 
+# docker compose exec	在已經啟動的容器裡 執行命令
+# postgres	目標容器名稱（docker-compose.yml 裡的服務名）
+# psql	PostgreSQL 提供的 CLI 工具，用來操作資料庫
+# -U testHexschool	指定使用者名稱，這裡是 testHexschool
+# -d test	指定要連的資料庫名稱，這裡是 test
 docker compose exec postgres psql -U testHexschool -d test
 
-# 或使用圖形化工具（如 DBeaver、pgAdmin）
+# 或使用圖形化工具GUI（如 DBeaver、pgAdmin）
 # Host: localhost
 # Port: 5432
 # Database: test
