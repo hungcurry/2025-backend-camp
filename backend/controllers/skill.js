@@ -12,9 +12,12 @@ function isNotValidSting (value) {
 class SkillController {
   static async getAll (req, res, next) {
     try {
+      // 去資料庫撈資料（這就是 SELECT！）
+      // .find() = SQL 的 SELECT
       const skill = await dataSource.getRepository('Skill').find({
         select: ['id', 'name']
       })
+      // 回傳給前端
       res.status(200).json({
         status: 'success',
         data: skill
@@ -27,7 +30,9 @@ class SkillController {
 
   static async postSkill (req, res, next) {
     try {
+      // 1. 拿到使用者輸入的名稱
       const { name } = req.body
+      // 2. 檢查有沒有填寫
       if (isUndefined(name) || isNotValidSting(name)) {
         res.status(400).json({
           status: 'failed',
@@ -36,6 +41,8 @@ class SkillController {
         return
       }
       const skillRepo = dataSource.getRepository('Skill')
+
+      // 3. 檢查資料庫有沒有重複
       const existSkill = await skillRepo.find({
         where: {
           name
@@ -48,9 +55,10 @@ class SkillController {
         })
         return
       }
-      const newSkill = await skillRepo.create({
-        name
-      })
+
+      // 4. 存進資料庫（這就是 INSERT！）
+      // skillRepo.create() + save() = SQL 的 INSERT
+      const newSkill = await skillRepo.create({ name})
       const result = await skillRepo.save(newSkill)
       res.status(200).json({
         status: 'success',
@@ -64,7 +72,11 @@ class SkillController {
 
   static async delete (req, res, next) {
     try {
+      // 1. 拿到要刪的 ID
       const skillId = req.url.split('/').pop()
+
+      // 2. 檢查 ID 有沒有問題
+      // if (!skillId) { return 錯誤回應 }
       if (isUndefined(skillId) || isNotValidSting(skillId)) {
         res.status(400).json({
           status: 'failed',
@@ -72,6 +84,7 @@ class SkillController {
         })
         return
       }
+      // 3. 從資料庫刪掉（這就是 DELETE！）
       const result = await dataSource.getRepository('Skill').delete(skillId)
       if (result.affected === 0) {
         res.status(400).json({
