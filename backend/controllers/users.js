@@ -6,7 +6,8 @@ const { dataSource } = require('../db/data-source')
 const logger = require('../utils/logger')('UsersController')
 const generateJWT = require('../utils/generateJWT')
 
-const passwordPattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,16}/
+// 修改密碼長度限制
+const passwordPattern = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{10,16}/
 
 function isUndefined (value) {
   return value === undefined

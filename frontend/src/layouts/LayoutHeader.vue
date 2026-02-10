@@ -1,3 +1,31 @@
+<script setup>
+import { ref } from "vue";
+import { storeToRefs } from "pinia";
+import { useRouter } from "vue-router";
+import { useUserStore } from "../stores/user.js";
+import { removeCookie } from "../utils/cookie.js";
+
+const router = useRouter();
+const { name, role } = storeToRefs(useUserStore());
+const { setCurrentUser } = useUserStore();
+
+const isMobileMenuOpen = ref(false);
+
+function logout() {
+  removeCookie("token");
+  setCurrentUser({ name: "", role: "" });
+  router.push("/");
+}
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value;
+};
+
+const closeMobileMenu = () => {
+  isMobileMenuOpen.value = false;
+};
+</script>
+
 <template>
   <header class="bg-primary-900 border-primary-700">
     <div class="max-w-7xl mx-auto px-4 md:px-8 lg:px-16 xl:px-24">
@@ -8,7 +36,7 @@
             @click="closeMobileMenu"
             class="flex items-center"
           >
-            <img src="/logo-text.png" alt="LiveFit+" class="h-6 w-auto" />
+            <img src="/logo-text-v2.png" alt="LiveFit+" class="h-6 w-auto" />
             <span class="sr-only">LiveFit+</span>
           </router-link>
         </h1>
@@ -193,31 +221,3 @@
     </div>
   </header>
 </template>
-
-<script setup>
-import { ref } from "vue";
-import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router";
-import { useUserStore } from "../stores/user.js";
-import { removeCookie } from "../utils/cookie.js";
-
-const router = useRouter();
-const { name, role } = storeToRefs(useUserStore());
-const { setCurrentUser } = useUserStore();
-
-const isMobileMenuOpen = ref(false);
-
-function logout() {
-  removeCookie("token");
-  setCurrentUser({ name: "", role: "" });
-  router.push("/");
-}
-
-const toggleMobileMenu = () => {
-  isMobileMenuOpen.value = !isMobileMenuOpen.value;
-};
-
-const closeMobileMenu = () => {
-  isMobileMenuOpen.value = false;
-};
-</script>

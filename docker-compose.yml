@@ -1,6 +1,8 @@
 version: "3.8"
 volumes:
   pgData:
+  node_modules_backend:
+  node_modules_frontend:
 services:
   postgres:
     image: postgres:16.4-alpine3.20
@@ -23,53 +25,60 @@ services:
       timeout: 3s
       retries: 3
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    volumes:
-      - ./.env:/app/.env:ro
-    ports:
-      - "${PORT}:${PORT}"
-    networks:
-      - bootcamp_network
-    depends_on:
-      postgres:
-        condition: service_healthy
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: 3
-        compress: "true"
-    healthcheck:
-      test: wget --no-verbose --tries=1 --spider http://localhost:${PORT}/healthcheck || exit 1
-      interval: 30s
-      retries: 3
-      start_period: 20s
-      timeout: 30s
-    deploy:
-      replicas: 1
+      build:
+        context: ./backend
+        dockerfile: Dockerfile
+      env_file:
+        - .env
+      volumes:
+        - ./.env:/app/.env:ro
+        # --- 新增掛載 ---
+        - ./backend:/app           # 將本機後端目錄掛載到容器 /app
+        - node_modules_backend:/app/node_modules # 使用容器內的 node_modules，避免與本機衝突
+      ports:
+        - "${PORT}:${PORT}"
+      networks:
+        - bootcamp_network
+      depends_on:
+        postgres:
+          condition: service_healthy
+      logging:
+        driver: "json-file"
+        options:
+          max-size: "10m"
+          max-file: 3
+          compress: "true"
+      healthcheck:
+        test: wget --no-verbose --tries=1 --spider http://localhost:${PORT}/healthcheck || exit 1
+        interval: 30s
+        retries: 3
+        start_period: 20s
+        timeout: 30s
+      deploy:
+        replicas: 1
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-      args:
-        - VITE_API_BASE_URL=${VITE_API_BASE_URL}
-    env_file:
-      - .env
-    ports:
-      - "3000:80"
-    networks:
-      - bootcamp_network
-    logging:
-      driver: "json-file"
-      options:
-        max-size: "10m"
-        max-file: 3
-        compress: "true"
-    deploy:
-      replicas: 1
+      build:
+        context: ./frontend
+        dockerfile: Dockerfile
+        args:
+          - VITE_API_BASE_URL=${VITE_API_BASE_URL}
+      env_file:
+        - .env
+      volumes:
+        # --- 新增掛載 ---
+        - ./frontend:/app          # 將本機前端目錄掛載到容器 /app
+        - node_modules_frontend:/app/node_modules # 避免本機 node_modules 覆蓋容器內的版本
+      ports:
+        - "3000:80"
+      networks:
+        - bootcamp_network
+      logging:
+        driver: "json-file"
+        options:
+          max-size: "10m"
+          max-file: 3
+          compress: "true"
+      deploy:
+        replicas: 1
 networks:
   bootcamp_network:
