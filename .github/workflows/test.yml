@@ -105,7 +105,7 @@ jobs:
 
   # --- 進階 任務驗證階段 ---
   validate-screenshots:
-    name: 驗證進階任務 9 題
+    name: 驗證進階任務 8 題
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
