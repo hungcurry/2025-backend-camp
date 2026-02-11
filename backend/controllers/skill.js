@@ -58,7 +58,7 @@ class SkillController {
 
       // 4. 存進資料庫（這就是 INSERT！）
       // skillRepo.create() + save() = SQL 的 INSERT
-      const newSkill = await skillRepo.create({ name})
+      const newSkill = await skillRepo.create({ name })
       const result = await skillRepo.save(newSkill)
       res.status(200).json({
         status: 'success',
