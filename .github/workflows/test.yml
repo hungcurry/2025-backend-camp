@@ -299,6 +299,8 @@ jobs:
           key: ${{ runner.os }}-node-backend-${{ hashFiles('package-lock.json') }}
           restore-keys: |
             ${{ runner.os }}-node-backend-
+      # github-check 會調用 GitHub API 額外建立一個名為 'eslint' 的 Check Run
+      # 優點：錯誤會直接標註在 Pull Request 的代碼行號旁，無需翻閱 Action Log
       - name: Eslint Scan
         uses: reviewdog/action-eslint@v1
         with:
