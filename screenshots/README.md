@@ -37,7 +37,6 @@ https://drive.google.com/drive/folders/1d0EBDjVdqsyh6O1v-SdmaZFuVerZwSx4
 08-booking-record.png 預約紀錄畫面
 ```
 
-
 ```jsx
 // 前端
 http://localhost:3000/
@@ -56,3 +55,21 @@ http://localhost:8080/healthcheck
 http://localhost:8080/api/credit-package
 
 ```
+
+### 開發流程
+1. 你的開發模式 (Development Workflow)
+當你在寫程式碼、修 Bug、趕進度時，你的配置應該是：
+資料庫 (Postgres)：依然跑在 Docker 裡。
+指令：docker compose up -d postgres (只啟動資料庫)。
+後端 (Backend)：在本機終端機跑。
+指令：npm run dev (背後是 nodemon ./bin/www.js)。
+優點：存檔後 Nodemon 秒速重啟，你在終端機看到的 Console 日誌最即時。
+前端 (Frontend)：在本機終端機跑。
+指令：npm run dev (背後是 vite)。
+優點：Vite 的熱更新 (HMR) 在本機環境下反應最靈敏，畫面秒變。
+
+1. 你的生產模式 (Production Workflow)
+當你功能寫完了，準備要交卷、Demo 或部署到雲端時，這才是 Docker 全力出擊的時候：
+指令：docker compose up -d --build。
+行為：這時 Docker 會執行你在 Dockerfile 裡寫的那套專業流程（安裝生產環境套件、前端 Build 成靜態檔、用 Nginx 或 Serve 跑起來）。
+目的：確保這套東西拿到別人的電腦、或是雲端伺服器上，跑起來跟你電腦裡的一模一樣。
