@@ -38,10 +38,16 @@ cd ..
 cd frontend
 npm install
 npm run dev
+
+~前端：打開 
+http://localhost:5173
+
+~後端：打開 
+http://localhost:8080/healthcheck
 ```
 
 
-## 測試資料
+### (三).測試資料
 ```jsx
 // 測試文件
 https://hackmd.io/@hexschool/r1-WgwPLbl#Part-2
@@ -93,7 +99,17 @@ ngrok http --url=unparceled-lashay-unmotile.ngrok-free.dev 8080
 | 付款人信箱 | 隨意填 |
 
 
-### (三).金流功能-後端檔案
+### (三).金流功能-前端檔案
+
+| 檔案 | 用途 |
+|------|------|
+| `frontend/src/api/order.js` | 呼叫後端的「建立訂單」API |
+| `frontend/src/pages/public/FitnessPlans.vue` | 健身方案頁面，點擊「選擇方案」後會建立訂單並跳轉到藍新付款 |
+| `frontend/src/pages/public/PaymentResult.vue` | 付款結果頁面，顯示「付款成功」或「付款失敗」 |
+| `frontend/src/router/index.js` | 註冊 `/payment-result` 這個頁面路徑 |
+
+
+### (四).金流功能-後端檔案
 
 | 檔案 | 用途 |
 |------|------|
@@ -103,16 +119,6 @@ ngrok http --url=unparceled-lashay-unmotile.ngrok-free.dev 8080
 | `backend/controllers/order.js` | 處理三件事：①建立訂單 ②收到藍新的付款通知 ③把使用者導回前端 |
 | `backend/routes/order.js` | 定義「建立訂單」的 API 路徑，並要求使用者先登入 |
 | `backend/routes/newebpay.js` | 定義藍新「通知」和「導回」的 API 路徑（這兩個不需要登入，因為是藍新伺服器呼叫的） |
-
-### (四).金流功能-前端檔案
-
-| 檔案 | 用途 |
-|------|------|
-| `frontend/src/api/order.js` | 呼叫後端的「建立訂單」API |
-| `frontend/src/pages/public/FitnessPlans.vue` | 健身方案頁面，點擊「選擇方案」後會建立訂單並跳轉到藍新付款 |
-| `frontend/src/pages/public/PaymentResult.vue` | 付款結果頁面，顯示「付款成功」或「付款失敗」 |
-| `frontend/src/router/index.js` | 註冊 `/payment-result` 這個頁面路徑 |
-
 
 
 ## DB指令
