@@ -1,4 +1,6 @@
 ## 專案快速啟動
+
+### (一).使用 Docker
 ```bash
 * 啟動 Rancher Desktop
 
@@ -14,7 +16,32 @@ http://localhost:3000
 http://localhost:8080/healthcheck
 ```
 
-## 進階任務
+### (二).本機開發（不使用 Docker）
+```bash
+# 1. 啟動資料庫容器
+docker compose up postgres -d
+
+# 2. 修改 .env 中的 DB_HOST
+# DB_HOST=localhost
+# 然後個複製一份 到frontend/backend 資料夾裡面
+
+# 3. 安裝後端依賴
+cd ..
+cd backend
+npm install
+
+# 4. 啟動後端開發伺服器
+npm run dev
+
+# 5. 另開終端機，啟動前端開發伺服器
+cd ..
+cd frontend
+npm install
+npm run dev
+```
+
+
+## 測試資料
 ```jsx
 // 測試文件
 https://hackmd.io/@hexschool/r1-WgwPLbl#Part-2
