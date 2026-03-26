@@ -1,3 +1,22 @@
+<script setup>
+import { ref } from "vue";
+
+const sidebar = ref([
+  {
+    title: "課程儀表板",
+    path: "/user/dashboard",
+  },
+  {
+    title: "個人資料檢視",
+    path: "/user/profile",
+  },
+  {
+    title: "訂單頁面",
+    path: "/user/orders",
+  },
+]);
+</script>
+
 <template>
   <div class="flex flex-col lg:flex-row min-h-screen gap-0 lg:gap-8 bg-primary-900">
     <aside
@@ -34,21 +53,5 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
-
-const sidebar = ref([
-  {
-    title: "課程儀表板",
-    path: "/user/dashboard",
-  },
-  {
-    title: "個人資料檢視",
-    path: "/user/profile",
-  },
-  {
-    title: "訂單頁面",
-    path: "/user/orders",
-  },
-]);
-</script>
+<style lang="scss" scoped>
+</style>

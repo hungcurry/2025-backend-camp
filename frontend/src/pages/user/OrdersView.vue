@@ -1,3 +1,38 @@
+<script setup>
+import { ref, onMounted, computed } from "vue";
+import { UserAPI } from "@/api/index.js";
+import { formatLocalDateTime } from "@/utils/formatDateTime.js";
+
+const orders = ref([]);
+
+const totalCredits = computed(() => {
+  return orders.value.reduce((sum, order) => sum + order.purchased_credits, 0);
+});
+const totalAmount = computed(() => {
+  return orders.value.reduce((sum, order) => sum + order.price_paid, 0);
+});
+
+async function getCreditPackage() {
+  try {
+    const { data } = await UserAPI.getUserCreditPackage();
+    orders.value = data;
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { message } = error.response.data;
+      msg = message;
+    }
+
+    throw new Error(`[getCreditPackage] error : ${msg}`);
+  }
+}
+
+onMounted(() => {
+  getCreditPackage();
+});
+</script>
+
 <template>
   <div class="bg-primary-900 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 py-12 md:py-16 lg:py-20">
     <div class="max-w-7xl mx-auto">
@@ -172,37 +207,5 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, computed } from "vue";
-import { getUserCreditPackage } from "../../api/index.js";
-import { formatLocalDateTime } from "../../utils/formatDateTime.js";
-
-const orders = ref([]);
-
-const totalCredits = computed(() => {
-  return orders.value.reduce((sum, order) => sum + order.purchased_credits, 0);
-});
-const totalAmount = computed(() => {
-  return orders.value.reduce((sum, order) => sum + order.price_paid, 0);
-});
-
-async function getCreditPackage() {
-  try {
-    const { data } = await getUserCreditPackage();
-    orders.value = data;
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { message } = error.response.data;
-      msg = message;
-    }
-
-    throw new Error(`[getCreditPackage] error : ${msg}`);
-  }
-}
-
-onMounted(() => {
-  getCreditPackage();
-});
-</script>
+<style lang="scss" scoped>
+</style>

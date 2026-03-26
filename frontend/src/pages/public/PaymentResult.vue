@@ -1,3 +1,13 @@
+<script setup>
+import { computed } from "vue";
+import { useRoute } from "vue-router";
+
+const route = useRoute();
+
+const isSuccess = computed(() => route.query.status === "success");
+const orderNo = computed(() => route.query.orderNo || "");
+</script>
+
 <template>
   <div class="w-full py-12 md:py-16 lg:py-20 bg-primary-900 min-h-screen">
     <div class="max-w-2xl mx-auto px-4 sm:px-6 md:px-8 text-center">
@@ -31,12 +41,5 @@
   </div>
 </template>
 
-<script setup>
-import { computed } from "vue";
-import { useRoute } from "vue-router";
-
-const route = useRoute();
-
-const isSuccess = computed(() => route.query.status === "success");
-const orderNo = computed(() => route.query.orderNo || "");
-</script>
+<style lang="scss" scoped>
+</style>

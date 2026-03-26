@@ -1,3 +1,112 @@
+<script setup>
+import { ref, onMounted, getCurrentInstance } from "vue";
+import { AdminAPI } from "@/api/index.js";
+import { formatCoachCourseDateTime } from "@/utils/formatDateTime.js";
+import CourseModal from "@/components/CourseModal.vue";
+import swalHandler from "@/utils/swalHandler.js";
+
+const { proxy } = getCurrentInstance();
+
+const courseList = ref([]);
+const courseModal = ref(false);
+const courseId = ref("");
+
+function getStatusClass(status) {
+  const statusClasses = {
+    尚未開始: "bg-info-200 text-info-700",
+    進行中: "bg-success-200 text-success-700",
+    已結束: "bg-primary-600 text-primary-0",
+  };
+  return statusClasses[status];
+}
+
+function openCourseModal(id) {
+  if (typeof id === "string") {
+    courseId.value = id;
+  }
+
+  courseModal.value = true;
+}
+
+function closeCourseModal() {
+  courseId.value = "";
+  courseModal.value = false;
+}
+
+async function addCourse(courseInfo) {
+  try {
+    const { status } = await AdminAPI.postCourses(courseInfo);
+    if (status === "success") {
+      swalHandler(proxy.$swal, "新增課程成功");
+      getCoachCourseList();
+    }
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { status, message } = error.response.data;
+      msg = message;
+
+      if (status === "failed") {
+        swalHandler(proxy.$swal, message);
+        return;
+      }
+    }
+
+    throw new Error(`[getCoachCourseList] error : ${msg}`);
+  } finally {
+    closeCourseModal();
+  }
+}
+
+async function updateCourse(courseInfo, courseId) {
+  try {
+    const { status } = await AdminAPI.putCourses(courseInfo, courseId);
+    if (status === "success") {
+      swalHandler(proxy.$swal, "更新課程成功");
+      getCoachCourseList();
+    }
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { status, message } = error.response.data;
+      msg = message;
+
+      if (status === "failed") {
+        swalHandler(proxy.$swal, message);
+        return;
+      }
+    }
+
+    throw new Error(`[getCoachCourseList] error : ${msg}`);
+  } finally {
+    closeCourseModal();
+  }
+}
+
+async function getCoachCourseList() {
+  try {
+    const { data } = await AdminAPI.getAdminCoachCourses();
+
+    courseList.value = data;
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { message } = error.response.data;
+      msg = message;
+    }
+
+    throw new Error(`[getCoachCourseList] error : ${msg}`);
+  }
+}
+
+onMounted(() => {
+  getCoachCourseList();
+});
+</script>
+
 <template>
   <div class="bg-primary-900 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 py-12 md:py-16 lg:py-20">
     <div class="max-w-7xl mx-auto">
@@ -210,115 +319,5 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, getCurrentInstance } from "vue";
-import {
-  getAdminCoachCourses,
-  postCourses,
-  putCourses,
-} from "../../api/index.js";
-import { formatCoachCourseDateTime } from "../../utils/formatDateTime.js";
-import CourseModal from "../../components/CourseModal.vue";
-import swalHandler from "../../utils/swalHandler.js";
-
-const { proxy } = getCurrentInstance();
-
-const courseList = ref([]);
-const courseModal = ref(false);
-const courseId = ref("");
-
-function getStatusClass(status) {
-  const statusClasses = {
-    尚未開始: "bg-info-200 text-info-700",
-    進行中: "bg-success-200 text-success-700",
-    已結束: "bg-primary-600 text-primary-0",
-  };
-  return statusClasses[status];
-}
-
-function openCourseModal(id) {
-  if (typeof id === "string") {
-    courseId.value = id;
-  }
-
-  courseModal.value = true;
-}
-
-function closeCourseModal() {
-  courseId.value = "";
-  courseModal.value = false;
-}
-
-async function addCourse(courseInfo) {
-  try {
-    const { status } = await postCourses(courseInfo);
-    if (status === "success") {
-      swalHandler(proxy.$swal, "新增課程成功");
-      getCoachCourseList();
-    }
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { status, message } = error.response.data;
-      msg = message;
-
-      if (status === "failed") {
-        swalHandler(proxy.$swal, message);
-        return;
-      }
-    }
-
-    throw new Error(`[getCoachCourseList] error : ${msg}`);
-  } finally {
-    closeCourseModal();
-  }
-}
-
-async function updateCourse(courseInfo, courseId) {
-  try {
-    const { status } = await putCourses(courseInfo, courseId);
-    if (status === "success") {
-      swalHandler(proxy.$swal, "更新課程成功");
-      getCoachCourseList();
-    }
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { status, message } = error.response.data;
-      msg = message;
-
-      if (status === "failed") {
-        swalHandler(proxy.$swal, message);
-        return;
-      }
-    }
-
-    throw new Error(`[getCoachCourseList] error : ${msg}`);
-  } finally {
-    closeCourseModal();
-  }
-}
-
-async function getCoachCourseList() {
-  try {
-    const { data } = await getAdminCoachCourses();
-
-    courseList.value = data;
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { message } = error.response.data;
-      msg = message;
-    }
-
-    throw new Error(`[getCoachCourseList] error : ${msg}`);
-  }
-}
-
-onMounted(() => {
-  getCoachCourseList();
-});
-</script>
+<style lang="scss" scoped>
+</style>

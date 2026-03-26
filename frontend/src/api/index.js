@@ -1,59 +1,9 @@
-import { getCreditPackages, postCreditPackage } from "./credit-package.js";
-import {
-  getCoaches,
-  getCoachDetail,
-  getCoachCourses,
-  getSkills,
-  postSkill,
-  deleteSkill,
-} from "./coaches.js";
-import {
-  postSignup,
-  postLogin,
-  getUserCourses,
-  getUserCreditPackage,
-  getUserProfile,
-  putUserProfile,
-  putUserPassword,
-} from "./users.js";
-import { postCourse, deleteCourse } from "./courses.js";
-import { createOrder } from "./order.js";
-import {
-  getCoach,
-  putCoach,
-  getAdminCoachCourses,
-  getCoachCourse,
-  postCourses,
-  putCourses,
-  getMonthlyRevenue,
-  postPromoteUserToCoach,
-} from "./admin.js";
+import * as CourseAPI from '@/api/courses.js'
+import * as OrderAPI from '@/api/order.js'
+import * as CreditAPI from '@/api/credit-package.js'
+import * as CoachAPI from '@/api/coaches.js'
+import * as UserAPI from '@/api/users.js'
+import * as AdminAPI from '@/api/admin.js'
 
-export {
-  getCreditPackages,
-  postCreditPackage,
-  getCoaches,
-  getCoachDetail,
-  getCoachCourses,
-  getSkills,
-  postSkill,
-  deleteSkill,
-  postSignup,
-  postLogin,
-  getUserCourses,
-  getUserCreditPackage,
-  getUserProfile,
-  putUserProfile,
-  putUserPassword,
-  postCourse,
-  deleteCourse,
-  getCoach,
-  putCoach,
-  getAdminCoachCourses,
-  getCoachCourse,
-  postCourses,
-  putCourses,
-  getMonthlyRevenue,
-  postPromoteUserToCoach,
-  createOrder,
-};
+// 統一導出命名空間
+export { CourseAPI, OrderAPI, CreditAPI, CoachAPI, UserAPI, AdminAPI }

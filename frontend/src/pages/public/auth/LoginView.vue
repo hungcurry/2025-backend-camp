@@ -1,3 +1,58 @@
+<script setup>
+import { ref, getCurrentInstance } from 'vue'
+import { useRouter } from 'vue-router'
+import { UserAPI } from '@/api/index.js'
+import swalHandler from '@/utils/swalHandler.js'
+import { setKeyFromCookie } from '@/utils/cookie.js'
+import { jwtDecode } from 'jwt-decode'
+import { useUserStore } from '@/stores/user.js'
+
+const { proxy } = getCurrentInstance()
+const router = useRouter()
+const { setCurrentUser } = useUserStore()
+
+const user = ref({
+  email: '',
+  password: '',
+})
+
+async function login() {
+  try {
+    const { data } = await UserAPI.postLogin(user.value)
+
+    const { role, exp } = jwtDecode(data.token)
+
+    setKeyFromCookie('token', data.token, exp)
+
+    setCurrentUser({
+      name: data.user.name,
+      role,
+    })
+
+    // 根據角色導向不同頁面
+    if (role === 'COACH') {
+      router.push('/coach/profile')
+    } else if (role === 'USER') {
+      router.push('/user/dashboard')
+    }
+  } catch (error) {
+    let msg = error.message
+
+    if (Object.hasOwn(error.response, 'data')) {
+      const { status, message } = error.response.data
+      msg = message
+
+      if (status === 'failed') {
+        swalHandler(proxy.$swal, message)
+        return
+      }
+    }
+
+    throw new Error(`[getCoachCourseList] error : ${msg}`)
+  }
+}
+</script>
+
 <template>
   <div class="flex min-h-screen bg-primary-900">
     <div class="flex w-full md:w-1/2 flex-col justify-center px-8 py-12">
@@ -38,11 +93,7 @@
 
           <p class="text-center text-sm text-primary-400">
             還沒有帳號?
-            <router-link
-              to="/signup"
-              class="text-secondary-800 font-medium hover:underline"
-              >立即註冊</router-link
-            >
+            <router-link to="/signup" class="text-secondary-800 font-medium hover:underline">立即註冊</router-link>
           </p>
         </form>
       </div>
@@ -58,57 +109,5 @@
   </div>
 </template>
 
-<script setup>
-import { ref, getCurrentInstance } from "vue";
-import { useRouter } from "vue-router";
-import { postLogin } from "../../../api/index.js";
-import swalHandler from "../../../utils/swalHandler.js";
-import { setKeyFromCookie } from "../../../utils/cookie.js";
-import { jwtDecode } from "jwt-decode";
-import { useUserStore } from "../../../stores/user.js";
-
-const { proxy } = getCurrentInstance();
-const router = useRouter();
-const { setCurrentUser } = useUserStore();
-
-const user = ref({
-  email: "",
-  password: "",
-});
-
-async function login() {
-  try {
-    const { data } = await postLogin(user.value);
-
-    const { role, exp } = jwtDecode(data.token);
-
-    setKeyFromCookie("token", data.token, exp);
-
-    setCurrentUser({
-      name: data.user.name,
-      role,
-    });
-
-    // 根據角色導向不同頁面
-    if (role === "COACH") {
-      router.push("/coach/profile");
-    } else if (role === "USER") {
-      router.push("/user/dashboard");
-    }
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { status, message } = error.response.data;
-      msg = message;
-
-      if (status === "failed") {
-        swalHandler(proxy.$swal, message);
-        return;
-      }
-    }
-
-    throw new Error(`[getCoachCourseList] error : ${msg}`);
-  }
-}
-</script>
+<style lang="scss" scoped>
+</style>

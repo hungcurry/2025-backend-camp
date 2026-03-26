@@ -1,3 +1,105 @@
+<script setup>
+import { ref, onMounted, getCurrentInstance } from "vue";
+import { UserAPI, CourseAPI } from "@/api/index.js";
+import {
+  formatLocalDate,
+  formatLocalWeekDate,
+  formatTimeRange,
+} from "@/utils/formatDateTime.js";
+import {
+  isCourseInProgress,
+  isCourseUpcoming,
+} from "@/utils/timeComparison.js";
+import { useCurrentTime } from "@/composables/useNow.js";
+import swalHandler from "@/utils/swalHandler.js";
+
+const { proxy } = getCurrentInstance();
+
+const { currentTime } = useCurrentTime();
+const userCoursesInfo = ref({});
+const courseGroupingTable = ref({});
+const currentDate = ref(null);
+
+function getCourseButtonState(course) {
+  if (isCourseInProgress(course.start_at, course.end_at, currentTime.value)) {
+    return "live";
+  }
+
+  if (isCourseUpcoming(course.start_at, currentTime.value)) {
+    return "upcoming";
+  }
+
+  return "finished";
+}
+
+function getCourseGroupingTable(courseBooking, isInitialLoad) {
+  if (!courseBooking) {
+    courseGroupingTable.value = {};
+    return;
+  }
+
+  const grouped = {};
+
+  userCoursesInfo.value.course_booking.forEach((course, index) => {
+    const dateKey = formatLocalDate(course.start_at);
+    if (index === 0 && isInitialLoad) {
+      currentDate.value = dateKey;
+    }
+    if (!grouped[dateKey]) {
+      grouped[dateKey] = [];
+    }
+
+    grouped[dateKey].push(course);
+  });
+  courseGroupingTable.value = grouped;
+}
+
+async function getUserCoursesInfo(isInitialLoad) {
+  try {
+    const { data } = await UserAPI.getUserCourses();
+    userCoursesInfo.value = data;
+    getCourseGroupingTable(data.course_booking, isInitialLoad);
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { message } = error.response.data;
+      msg = message;
+    }
+
+    throw new Error(`[getUserCoursesInfo] error : ${msg}`);
+  }
+}
+
+async function deleteUserCourse(id) {
+  try {
+    const { status } = await CourseAPI.deleteCourse(id);
+
+    if (status === "success") {
+      swalHandler(proxy.$swal, "課程取消成功");
+      getUserCoursesInfo();
+    }
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { message } = error.response.data;
+      msg = message;
+    }
+
+    throw new Error(`[deleteUserCourse] error : ${msg}`);
+  }
+}
+
+function changeDate(dateKey) {
+  currentDate.value = dateKey;
+}
+
+onMounted(() => {
+  getUserCoursesInfo(true);
+});
+</script>
+
 <template>
   <div
     class="bg-primary-900 -mx-4 sm:-mx-6 md:-mx-8 px-4 sm:px-6 md:px-8 py-12 md:py-16 lg:py-20"
@@ -173,104 +275,5 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, getCurrentInstance } from "vue";
-import { getUserCourses, deleteCourse } from "../../api/index.js";
-import {
-  formatLocalDate,
-  formatLocalWeekDate,
-  formatTimeRange,
-} from "../../utils/formatDateTime.js";
-import {
-  isCourseInProgress,
-  isCourseUpcoming,
-} from "../../utils/timeComparison.js";
-import { useCurrentTime } from "../../composables/useNow.js";
-import swalHandler from "../../utils/swalHandler.js";
-
-const { proxy } = getCurrentInstance();
-
-const { currentTime } = useCurrentTime();
-const userCoursesInfo = ref({});
-const courseGroupingTable = ref({});
-const currentDate = ref(null);
-
-function getCourseButtonState(course) {
-  if (isCourseInProgress(course.start_at, course.end_at, currentTime.value)) {
-    return "live";
-  }
-
-  if (isCourseUpcoming(course.start_at, currentTime.value)) {
-    return "upcoming";
-  }
-
-  return "finished";
-}
-
-function getCourseGroupingTable(courseBooking, isInitialLoad) {
-  if (!courseBooking) {
-    courseGroupingTable.value = {};
-    return;
-  }
-
-  const grouped = {};
-
-  userCoursesInfo.value.course_booking.forEach((course, index) => {
-    const dateKey = formatLocalDate(course.start_at);
-    if (index === 0 && isInitialLoad) {
-      currentDate.value = dateKey;
-    }
-    if (!grouped[dateKey]) {
-      grouped[dateKey] = [];
-    }
-
-    grouped[dateKey].push(course);
-  });
-  courseGroupingTable.value = grouped;
-}
-
-async function getUserCoursesInfo(isInitialLoad) {
-  try {
-    const { data } = await getUserCourses();
-    userCoursesInfo.value = data;
-    getCourseGroupingTable(data.course_booking, isInitialLoad);
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { message } = error.response.data;
-      msg = message;
-    }
-
-    throw new Error(`[getUserCoursesInfo] error : ${msg}`);
-  }
-}
-
-async function deleteUserCourse(id) {
-  try {
-    const { status } = await deleteCourse(id);
-
-    if (status === "success") {
-      swalHandler(proxy.$swal, "課程取消成功");
-      getUserCoursesInfo();
-    }
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { message } = error.response.data;
-      msg = message;
-    }
-
-    throw new Error(`[deleteUserCourse] error : ${msg}`);
-  }
-}
-
-function changeDate(dateKey) {
-  currentDate.value = dateKey;
-}
-
-onMounted(() => {
-  getUserCoursesInfo(true);
-});
-</script>
+<style lang="scss" scoped>
+</style>

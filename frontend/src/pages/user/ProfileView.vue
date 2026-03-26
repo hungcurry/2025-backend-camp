@@ -1,3 +1,94 @@
+<script setup>
+import { ref, onMounted, getCurrentInstance } from "vue";
+import { useUserStore } from "@/stores/user.js";
+const { setUserName } = useUserStore();
+import { UserAPI } from "@/api/index.js";
+import swalHandler from "@/utils/swalHandler.js";
+
+const { proxy } = getCurrentInstance();
+
+const activeTab = ref("profile");
+const profileForm = ref({
+  email: "",
+  name: "",
+});
+const passwordForm = ref({
+  password: "",
+  new_password: "",
+  confirm_new_password: "",
+});
+
+async function updateProfile() {
+  try {
+    const { status } = await UserAPI.putUserProfile({
+      name: profileForm.value.name,
+    });
+    if (status === "success") {
+      getProfile();
+      swalHandler(proxy.$swal, "資料已更新");
+    }
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { status, message } = error.response.data;
+      msg = message;
+
+      if (status === "failed") {
+        swalHandler(proxy.$swal, message);
+        return;
+      }
+    }
+
+    throw new Error(`[updateProfile] error : ${msg}`);
+  }
+}
+
+async function updatePassword() {
+  try {
+    const { status } = await UserAPI.putUserPassword(passwordForm.value);
+    if (status === "success") {
+      swalHandler(proxy.$swal, "密碼已更新");
+    }
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { status, message } = error.response.data;
+      msg = message;
+
+      if (status === "failed") {
+        swalHandler(proxy.$swal, message);
+        return;
+      }
+    }
+
+    throw new Error(`[updatePassword] error : ${msg}`);
+  }
+}
+
+async function getProfile() {
+  try {
+    const { data } = await UserAPI.getUserProfile();
+    profileForm.value = data.user;
+    setUserName(data.user.name);
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { message } = error.response.data;
+      msg = message;
+    }
+
+    throw new Error(`[getProfile] error : ${msg}`);
+  }
+}
+
+onMounted(() => {
+  getProfile();
+});
+</script>
+
 <template>
   <div class="min-h-screen w-full py-8 bg-primary-900">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
@@ -185,97 +276,5 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, getCurrentInstance } from "vue";
-import { useUserStore } from "../../stores/user.js";
-const { setUserName } = useUserStore();
-import {
-  getUserProfile,
-  putUserProfile,
-  putUserPassword,
-} from "../../api/index.js";
-import swalHandler from "../../utils/swalHandler.js";
-
-const { proxy } = getCurrentInstance();
-
-const activeTab = ref("profile");
-const profileForm = ref({
-  email: "",
-  name: "",
-});
-const passwordForm = ref({
-  password: "",
-  new_password: "",
-  confirm_new_password: "",
-});
-
-async function updateProfile() {
-  try {
-    const { status } = await putUserProfile({
-      name: profileForm.value.name,
-    });
-    if (status === "success") {
-      getProfile();
-      swalHandler(proxy.$swal, "資料已更新");
-    }
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { status, message } = error.response.data;
-      msg = message;
-
-      if (status === "failed") {
-        swalHandler(proxy.$swal, message);
-        return;
-      }
-    }
-
-    throw new Error(`[updateProfile] error : ${msg}`);
-  }
-}
-
-async function updatePassword() {
-  try {
-    const { status } = await putUserPassword(passwordForm.value);
-    if (status === "success") {
-      swalHandler(proxy.$swal, "密碼已更新");
-    }
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { status, message } = error.response.data;
-      msg = message;
-
-      if (status === "failed") {
-        swalHandler(proxy.$swal, message);
-        return;
-      }
-    }
-
-    throw new Error(`[updatePassword] error : ${msg}`);
-  }
-}
-
-async function getProfile() {
-  try {
-    const { data } = await getUserProfile();
-    profileForm.value = data.user;
-    setUserName(data.user.name);
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { message } = error.response.data;
-      msg = message;
-    }
-
-    throw new Error(`[getProfile] error : ${msg}`);
-  }
-}
-
-onMounted(() => {
-  getProfile();
-});
-</script>
+<style lang="scss" scoped>
+</style>

@@ -1,3 +1,131 @@
+<script setup>
+import { ref, onMounted, onUnmounted } from "vue";
+import { useRouter } from "vue-router";
+import { CoachAPI } from "@/api/index.js";
+
+const router = useRouter();
+
+const coachList = ref([]);
+
+const carouselSlides = [
+  {
+    review: "這位教練的專業指導讓我在短時間內看到了明顯的進步!",
+    coachImage:
+      "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=200&h=200&fit=crop",
+    coachName: "張大明",
+    coachDescription: "專注重訓技術與肌肉控制的專業導師",
+  },
+  {
+    review: "教練非常耐心，每個動作都會仔細指導，讓我重新找回運動的信心",
+    coachImage:
+      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
+    coachName: "李小華",
+    coachDescription: "相信柔軟與力量能共存的靜心實踐家",
+  },
+  {
+    review: "跟著教練訓練三個月，不僅體態改善了，整個人的精神狀態也變得更好",
+    coachImage:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
+    coachName: "王建國",
+    coachDescription: "專注爆發力與穩定度訓練的運動導師",
+  },
+];
+
+const currentSlide = ref(0);
+let carouselInterval = null;
+
+function goToCoachDetail(coachId) {
+  router.push(`/coaches/${coachId}`);
+}
+
+// 前往指定幻燈片
+function goToSlide(index) {
+  currentSlide.value = index;
+  // 重啟自動播放
+  stopCarousel();
+  startCarousel();
+}
+
+// 下一張
+function nextSlide() {
+  currentSlide.value = (currentSlide.value + 1) % carouselSlides.length;
+}
+
+// 自動播放
+function startCarousel() {
+  carouselInterval = setInterval(() => {
+    nextSlide();
+  }, 3000); // 每3秒切換一次
+}
+
+// 停止自動播放
+function stopCarousel() {
+  if (carouselInterval) {
+    clearInterval(carouselInterval);
+    carouselInterval = null;
+  }
+}
+
+async function getCoachesList() {
+  try {
+    const { data } = await CoachAPI.getCoaches(6, 1);
+    return data;
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { message } = error.response.data;
+      msg = message;
+    }
+
+    throw new Error(`[getCoachCourseList] error : ${msg}`);
+  }
+}
+
+async function getCoachDetailList() {
+  try {
+    const coaches = await getCoachesList();
+
+    if (!coaches || coaches.length === 0) {
+      coachList.value = [];
+      return;
+    }
+
+    const results = await Promise.allSettled(
+      coaches.map((coach) => CoachAPI.getCoachDetail(coach.id))
+    );
+
+    const coachesWithDetails = results.map((result) => {
+      if (result.value.status === "success") {
+        return {
+          ...result.value.data,
+        };
+      }
+    });
+
+    coachList.value = coachesWithDetails;
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { message } = error.response.data;
+      msg = message;
+    }
+
+    throw new Error(`[getCoachDetailList] error : ${msg}`);
+  }
+}
+
+onMounted(() => {
+  startCarousel();
+  getCoachDetailList();
+});
+
+onUnmounted(() => {
+  stopCarousel();
+});
+</script>
+
 <template>
   <div class="bg-primary-900 min-h-screen">
     <div class="container py-16 mx-auto px-4 md:px-8 lg:px-20">
@@ -209,130 +337,5 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, onUnmounted } from "vue";
-import { useRouter } from "vue-router";
-import { getCoaches, getCoachDetail } from "../../api/index.js";
-
-const router = useRouter();
-
-const coachList = ref([]);
-
-const carouselSlides = [
-  {
-    review: "這位教練的專業指導讓我在短時間內看到了明顯的進步!",
-    coachImage:
-      "https://images.unsplash.com/photo-1633332755192-727a05c4013d?w=200&h=200&fit=crop",
-    coachName: "張大明",
-    coachDescription: "專注重訓技術與肌肉控制的專業導師",
-  },
-  {
-    review: "教練非常耐心，每個動作都會仔細指導，讓我重新找回運動的信心",
-    coachImage:
-      "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=200&h=200&fit=crop",
-    coachName: "李小華",
-    coachDescription: "相信柔軟與力量能共存的靜心實踐家",
-  },
-  {
-    review: "跟著教練訓練三個月，不僅體態改善了，整個人的精神狀態也變得更好",
-    coachImage:
-      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop",
-    coachName: "王建國",
-    coachDescription: "專注爆發力與穩定度訓練的運動導師",
-  },
-];
-
-const currentSlide = ref(0);
-let carouselInterval = null;
-
-function goToCoachDetail(coachId) {
-  router.push(`/coaches/${coachId}`);
-}
-
-// 前往指定幻燈片
-function goToSlide(index) {
-  currentSlide.value = index;
-  // 重啟自動播放
-  stopCarousel();
-  startCarousel();
-}
-
-// 下一張
-function nextSlide() {
-  currentSlide.value = (currentSlide.value + 1) % carouselSlides.length;
-}
-
-// 自動播放
-function startCarousel() {
-  carouselInterval = setInterval(() => {
-    nextSlide();
-  }, 3000); // 每3秒切換一次
-}
-
-// 停止自動播放
-function stopCarousel() {
-  if (carouselInterval) {
-    clearInterval(carouselInterval);
-    carouselInterval = null;
-  }
-}
-
-async function getCoachesList() {
-  try {
-    const { data } = await getCoaches(6, 1);
-    return data;
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { message } = error.response.data;
-      msg = message;
-    }
-
-    throw new Error(`[getCoachCourseList] error : ${msg}`);
-  }
-}
-
-async function getCoachDetailList() {
-  try {
-    const coaches = await getCoachesList();
-
-    if (!coaches || coaches.length === 0) {
-      coachList.value = [];
-      return;
-    }
-
-    const results = await Promise.allSettled(
-      coaches.map((coach) => getCoachDetail(coach.id))
-    );
-
-    const coachesWithDetails = results.map((result) => {
-      if (result.value.status === "success") {
-        return {
-          ...result.value.data,
-        };
-      }
-    });
-
-    coachList.value = coachesWithDetails;
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { message } = error.response.data;
-      msg = message;
-    }
-
-    throw new Error(`[getCoachDetailList] error : ${msg}`);
-  }
-}
-
-onMounted(() => {
-  startCarousel();
-  getCoachDetailList();
-});
-
-onUnmounted(() => {
-  stopCarousel();
-});
-</script>
+<style lang="scss" scoped>
+</style>

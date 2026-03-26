@@ -1,3 +1,110 @@
+<script setup>
+import { ref, computed, onMounted, getCurrentInstance } from "vue";
+import RedirectModal from "@/components/RedirectModal.vue";
+import FitnessPlanSuccessModal from "@/components/FitnessPlanSuccessModal.vue";
+import { CreditAPI, OrderAPI } from "@/api/index.js";
+import { getDataFromCookieByKey } from "@/utils/cookie.js";
+import swalHandler from "@/utils/swalHandler.js";
+
+const { proxy } = getCurrentInstance();
+
+const creditPackageList = ref([]);
+const redirectModal = ref(false);
+const fitnessPlanSuccessModal = ref(false);
+
+const processedCreditPackageList = computed(() => {
+  return creditPackageList.value.map((item) => {
+    const avgPricePerCredit = Math.round(item.price / item.credit_amount);
+
+    return {
+      ...item,
+      avgPricePerCredit,
+    };
+  });
+});
+
+function openRedirectModal() {
+  redirectModal.value = true;
+}
+function closeRedirectModal() {
+  redirectModal.value = false;
+}
+// function openFitnessPlanSuccessModal() {
+//   fitnessPlanSuccessModal.value = true;
+// }
+function closeFitnessPlanSuccessModal() {
+  fitnessPlanSuccessModal.value = false;
+}
+
+async function getCreditPackageList() {
+  try {
+    const { data } = await CreditAPI.getCreditPackages();
+    creditPackageList.value = data;
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { message } = error.response.data;
+      msg = message;
+    }
+
+    throw new Error(`[getCreditPackageList] error : ${msg}`);
+  }
+}
+
+async function buyCreditPackage(id) {
+  try {
+    if (!getDataFromCookieByKey("token")) {
+      openRedirectModal();
+      return;
+    }
+    const { status, data } = await OrderAPI.createOrder(id);
+    if (status === "success") {
+      // 建立隱藏表單，提交到藍新金流付款頁面
+      const form = document.createElement("form");
+      form.method = "POST";
+      form.action = data.paymentGateway;
+
+      const fields = {
+        MerchantID: data.MerchantID,
+        TradeInfo: data.TradeInfo,
+        TradeSha: data.TradeSha,
+        Version: data.Version,
+      };
+
+      Object.entries(fields).forEach(([key, value]) => {
+        const input = document.createElement("input");
+        input.type = "hidden";
+        input.name = key;
+        input.value = value;
+        form.appendChild(input);
+      });
+
+      document.body.appendChild(form);
+      form.submit();
+    }
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { status, message } = error.response.data;
+      msg = message;
+
+      if (status === "failed") {
+        swalHandler(proxy.$swal, message);
+        return;
+      }
+    }
+
+    throw new Error(`[buyCreditPackage] error : ${msg}`);
+  }
+}
+
+onMounted(() => {
+  getCreditPackageList();
+});
+</script>
+
 <template>
   <div class="w-full py-12 md:py-16 lg:py-20 bg-primary-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 2xl:px-0">
@@ -103,109 +210,5 @@
   />
 </template>
 
-<script setup>
-import { ref, computed, onMounted, getCurrentInstance } from "vue";
-import RedirectModal from "../../components/RedirectModal.vue";
-import FitnessPlanSuccessModal from "../../components/FitnessPlanSuccessModal.vue";
-import { getCreditPackages, createOrder } from "../../api/index.js";
-import { getDataFromCookieByKey } from "../../utils/cookie.js";
-import swalHandler from "../../utils/swalHandler.js";
-
-const { proxy } = getCurrentInstance();
-
-const creditPackageList = ref([]);
-const redirectModal = ref(false);
-const fitnessPlanSuccessModal = ref(false);
-
-const processedCreditPackageList = computed(() => {
-  return creditPackageList.value.map((item) => {
-    const avgPricePerCredit = Math.round(item.price / item.credit_amount);
-
-    return {
-      ...item,
-      avgPricePerCredit,
-    };
-  });
-});
-
-function openRedirectModal() {
-  redirectModal.value = true;
-}
-function closeRedirectModal() {
-  redirectModal.value = false;
-}
-function openFitnessPlanSuccessModal() {
-  fitnessPlanSuccessModal.value = true;
-}
-function closeFitnessPlanSuccessModal() {
-  fitnessPlanSuccessModal.value = false;
-}
-
-async function getCreditPackageList() {
-  try {
-    const { data } = await getCreditPackages();
-    creditPackageList.value = data;
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { message } = error.response.data;
-      msg = message;
-    }
-
-    throw new Error(`[getCreditPackageList] error : ${msg}`);
-  }
-}
-
-async function buyCreditPackage(id) {
-  try {
-    if (!getDataFromCookieByKey("token")) {
-      openRedirectModal();
-      return;
-    }
-    const { status, data } = await createOrder(id);
-    if (status === "success") {
-      // 建立隱藏表單，提交到藍新金流付款頁面
-      const form = document.createElement("form");
-      form.method = "POST";
-      form.action = data.paymentGateway;
-
-      const fields = {
-        MerchantID: data.MerchantID,
-        TradeInfo: data.TradeInfo,
-        TradeSha: data.TradeSha,
-        Version: data.Version,
-      };
-
-      Object.entries(fields).forEach(([key, value]) => {
-        const input = document.createElement("input");
-        input.type = "hidden";
-        input.name = key;
-        input.value = value;
-        form.appendChild(input);
-      });
-
-      document.body.appendChild(form);
-      form.submit();
-    }
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { status, message } = error.response.data;
-      msg = message;
-
-      if (status === "failed") {
-        swalHandler(proxy.$swal, message);
-        return;
-      }
-    }
-
-    throw new Error(`[buyCreditPackage] error : ${msg}`);
-  }
-}
-
-onMounted(() => {
-  getCreditPackageList();
-});
-</script>
+<style lang="scss" scoped>
+</style>

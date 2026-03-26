@@ -1,3 +1,73 @@
+<script setup>
+import { ref, onMounted, getCurrentInstance } from "vue";
+import { useRouter } from "vue-router";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user.js";
+import { AdminAPI } from "@/api/index.js";
+import { jwtDecode } from "jwt-decode";
+import { getDataFromCookieByKey, removeCookie } from "@/utils/cookie.js";
+import swalHandler from "@/utils/swalHandler.js";
+
+const { role } = storeToRefs(useUserStore());
+const { setCurrentUser } = useUserStore();
+const { proxy } = getCurrentInstance();
+const router = useRouter();
+
+const isCoach = ref(false);
+const formData = ref({
+  experience_years: 0,
+  description: "",
+  profile_image_url: "",
+});
+
+async function checkCoachStatus() {
+  if (role.value === "COACH") {
+    isCoach.value = true;
+    return;
+  }
+}
+
+function handleImageError() {
+  swalHandler(proxy.$swal, "圖片載入失敗，請檢查網址是否正確");
+}
+
+async function promoteToCoach() {
+  try {
+    const { id } = jwtDecode(getDataFromCookieByKey("token"));
+
+    const { status } = await AdminAPI.postPromoteUserToCoach(id, formData.value);
+
+    if (status === "success") {
+      swalHandler(proxy.$swal, "升級教練成功");
+      setTimeout(() => {
+        removeCookie("token");
+        setCurrentUser({ name: "", role: "" });
+        proxy.$swal.close();
+        router.push("/login");
+      }, 3000);
+    }
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { status, message } = error.response.data;
+      msg = message;
+
+      if (status === "failed") {
+        swalHandler(proxy.$swal, message);
+        return;
+      }
+    }
+
+    throw new Error(`[promoteToCoach] error : ${msg}`);
+  }
+}
+
+onMounted(() => {
+  checkCoachStatus();
+});
+</script>
+
 <template>
   <div class="max-w-4xl mx-auto">
     <div class="mb-8">
@@ -150,72 +220,5 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, getCurrentInstance } from "vue";
-import { useRouter } from "vue-router";
-import { storeToRefs } from "pinia";
-import { useUserStore } from "../../stores/user.js";
-import { postPromoteUserToCoach } from "../../api/index.js";
-import { jwtDecode } from "jwt-decode";
-import { getDataFromCookieByKey, removeCookie } from "../../utils/cookie.js";
-import swalHandler from "../../utils/swalHandler.js";
-
-const { role } = storeToRefs(useUserStore());
-const { setCurrentUser } = useUserStore();
-const { proxy } = getCurrentInstance();
-const router = useRouter();
-
-const isCoach = ref(false);
-const formData = ref({
-  experience_years: 0,
-  description: "",
-  profile_image_url: "",
-});
-
-async function checkCoachStatus() {
-  if (role.value === "COACH") {
-    isCoach.value = true;
-    return;
-  }
-}
-
-function handleImageError() {
-  swalHandler(proxy.$swal, "圖片載入失敗，請檢查網址是否正確");
-}
-
-async function promoteToCoach() {
-  try {
-    const { id } = jwtDecode(getDataFromCookieByKey("token"));
-
-    const { status } = await postPromoteUserToCoach(id, formData.value);
-
-    if (status === "success") {
-      swalHandler(proxy.$swal, "升級教練成功");
-      setTimeout(() => {
-        removeCookie("token");
-        setCurrentUser({ name: "", role: "" });
-        proxy.$swal.close();
-        router.push("/login");
-      }, 3000);
-    }
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { status, message } = error.response.data;
-      msg = message;
-
-      if (status === "failed") {
-        swalHandler(proxy.$swal, message);
-        return;
-      }
-    }
-
-    throw new Error(`[promoteToCoach] error : ${msg}`);
-  }
-}
-
-onMounted(() => {
-  checkCoachStatus();
-});
-</script>
+<style lang='scss' scoped>
+</style>

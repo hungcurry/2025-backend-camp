@@ -1,3 +1,62 @@
+<script setup>
+import { ref, getCurrentInstance } from 'vue'
+import { useRouter } from 'vue-router'
+import { UserAPI } from '@/api/index.js'
+import swalHandler from '@/utils/swalHandler.js'
+
+const { proxy } = getCurrentInstance()
+const router = useRouter()
+
+const user = ref({
+  email: '',
+  password: '',
+  confirmPassword: '',
+  name: '',
+})
+
+// 驗證密碼是否一致
+function validatePasswordMatch() {
+  if (user.value.password !== user.value.confirmPassword) {
+    swalHandler(proxy.$swal, '密碼不一致')
+    return false
+  }
+  return true
+}
+
+async function signup() {
+  // 驗證密碼是否一致
+  if (!validatePasswordMatch()) {
+    return
+  }
+
+  try {
+    const { status } = await UserAPI.postSignup(user.value)
+    if (status === 'success') {
+      swalHandler(proxy.$swal, '註冊成功')
+
+      setTimeout(() => {
+        proxy.$swal.close()
+        router.push('/login')
+      }, 3000)
+    }
+  } catch (error) {
+    let msg = error.message
+
+    if (Object.hasOwn(error.response, 'data')) {
+      const { status, message } = error.response.data
+      msg = message
+
+      if (status === 'failed') {
+        swalHandler(proxy.$swal, message)
+        return
+      }
+    }
+
+    throw new Error(`[getCoachCourseList] error : ${msg}`)
+  }
+}
+</script>
+
 <template>
   <div class="flex min-h-screen bg-primary-900">
     <div class="flex w-full md:w-1/2 flex-col justify-center px-8 py-12">
@@ -32,9 +91,7 @@
           </div>
 
           <div class="flex flex-col gap-2">
-            <label
-              for="confirmPassword"
-              class="text-lg font-medium text-primary-0"
+            <label for="confirmPassword" class="text-lg font-medium text-primary-0"
               >再次輸入密碼 <span class="text-secondary-800">*</span></label
             >
             <input
@@ -68,11 +125,7 @@
 
           <p class="text-center text-sm text-primary-400">
             已有會員?
-            <router-link
-              to="/login"
-              class="text-secondary-800 font-medium hover:underline"
-              >前往登入</router-link
-            >
+            <router-link to="/login" class="text-secondary-800 font-medium hover:underline">前往登入</router-link>
           </p>
         </div>
       </div>
@@ -88,61 +141,5 @@
   </div>
 </template>
 
-<script setup>
-import { ref, getCurrentInstance } from "vue";
-import { useRouter } from "vue-router";
-import { postSignup } from "../../../api/index.js";
-import swalHandler from "../../../utils/swalHandler.js";
-
-const { proxy } = getCurrentInstance();
-const router = useRouter();
-
-const user = ref({
-  email: "",
-  password: "",
-  confirmPassword: "",
-  name: "",
-});
-
-// 驗證密碼是否一致
-function validatePasswordMatch() {
-  if (user.value.password !== user.value.confirmPassword) {
-    swalHandler(proxy.$swal, "密碼不一致");
-    return false;
-  }
-  return true;
-}
-
-async function signup() {
-  // 驗證密碼是否一致
-  if (!validatePasswordMatch()) {
-    return;
-  }
-
-  try {
-    const { status } = await postSignup(user.value);
-    if (status === "success") {
-      swalHandler(proxy.$swal, "註冊成功");
-
-      setTimeout(() => {
-        proxy.$swal.close();
-        router.push("/login");
-      }, 3000);
-    }
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { status, message } = error.response.data;
-      msg = message;
-
-      if (status === "failed") {
-        swalHandler(proxy.$swal, message);
-        return;
-      }
-    }
-
-    throw new Error(`[getCoachCourseList] error : ${msg}`);
-  }
-}
-</script>
+<style lang="scss" scoped>
+</style>

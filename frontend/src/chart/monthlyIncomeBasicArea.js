@@ -1,14 +1,14 @@
-import * as echarts from "echarts/core";
-import { GridComponent } from "echarts/components";
-import { LineChart } from "echarts/charts";
-import { UniversalTransition } from "echarts/features";
-import { CanvasRenderer } from "echarts/renderers";
+import * as echarts from 'echarts/core'
+import { GridComponent } from 'echarts/components'
+import { LineChart } from 'echarts/charts'
+import { UniversalTransition } from 'echarts/features'
+import { CanvasRenderer } from 'echarts/renderers'
 
-echarts.use([GridComponent, LineChart, UniversalTransition, CanvasRenderer]);
+echarts.use([GridComponent, LineChart, UniversalTransition, CanvasRenderer])
 
 const incomePie = (element) => {
-  echarts.dispose(element);
-  const myChart = echarts.init(element);
+  echarts.dispose(element)
+  const myChart = echarts.init(element)
 
   const setOption = (data) => {
     const option = {
@@ -21,9 +21,9 @@ const incomePie = (element) => {
         containLabel: false,
       },
       xAxis: {
-        type: "category",
+        type: 'category',
         boundaryGap: false,
-        data: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"],
+        data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
         axisLabel: {
           show: false,
         },
@@ -38,7 +38,7 @@ const incomePie = (element) => {
         },
       },
       yAxis: {
-        type: "value",
+        type: 'value',
         axisLabel: {
           show: false,
         },
@@ -49,34 +49,34 @@ const incomePie = (element) => {
       series: [
         {
           data: [820, 932, 901, 934, 1290, 1330, 1320],
-          type: "line",
+          type: 'line',
           smooth: true,
           itemStyle: {
-            color: "#4ade80",
+            color: '#4ade80',
           },
           areaStyle: {
             color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               {
                 offset: 0,
-                color: "rgba(74, 222, 128, 0.5)",
+                color: 'rgba(74, 222, 128, 0.5)',
               },
               {
                 offset: 1,
-                color: "rgba(74, 222, 128, 0.1)",
+                color: 'rgba(74, 222, 128, 0.1)',
               },
             ]),
           },
           showSymbol: false,
         },
       ],
-    };
+    }
 
-    option.series[0].data = data;
+    option.series[0].data = data
 
-    return myChart.setOption(option);
-  };
-  const resize = () => myChart.resize();
-  return { setOption, resize };
-};
+    return myChart.setOption(option)
+  }
+  const resize = () => myChart.resize()
+  return { setOption, resize }
+}
 
-export default incomePie;
+export default incomePie

@@ -1,3 +1,95 @@
+<script setup>
+import { ref, onMounted, getCurrentInstance } from "vue";
+import { AdminAPI, CoachAPI } from "@/api/index.js";
+import { storeToRefs } from "pinia";
+import { useUserStore } from "@/stores/user.js";
+import swalHandler from "@/utils/swalHandler.js";
+
+const { proxy } = getCurrentInstance();
+const { name } = storeToRefs(useUserStore());
+
+const profileData = ref({
+  id: "",
+  profile_image_url: "",
+  experience_years: 0,
+  description: "",
+  skill_ids: [],
+});
+
+const skillList = ref([]);
+
+async function getCoachProfile() {
+  try {
+    const { data } = await AdminAPI.getCoach();
+
+    profileData.value = data;
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { message } = error.response.data;
+      msg = message;
+    }
+
+    throw new Error(`[getCoachProfile] error : ${msg}`);
+  }
+}
+
+async function getSkillList() {
+  try {
+    const { data } = await CoachAPI.getSkills();
+    skillList.value = data;
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { message } = error.response.data;
+      msg = message;
+    }
+
+    throw new Error(`[getSkillList] error : ${msg}`);
+  }
+}
+
+function functionToggleSkill(skillId) {
+  const index = profileData.value.skill_ids.indexOf(skillId);
+  if (index > -1) {
+    profileData.value.skill_ids.splice(index, 1);
+  } else {
+    profileData.value.skill_ids.push(skillId);
+  }
+}
+
+function handleImageError() {
+  swalHandler(proxy.$swal, "圖片載入失敗，請檢查網址是否正確");
+}
+
+// 儲存教練資料
+async function updateCoachProfile() {
+  try {
+    const { status, data } = await AdminAPI.putCoach(profileData.value);
+    if (status === "success") {
+      profileData.value = data;
+      swalHandler(proxy.$swal, "資料已更新");
+    }
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { message } = error.response.data;
+      msg = message;
+    }
+
+    throw new Error(`[updateCoachProfile] error : ${msg}`);
+  }
+}
+
+onMounted(() => {
+  getSkillList();
+  getCoachProfile();
+});
+</script>
+
 <template>
   <div class="min-h-screen w-full py-8 bg-primary-900">
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
@@ -143,94 +235,5 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, getCurrentInstance } from "vue";
-import { getCoach, getSkills, putCoach } from "../../api/index.js";
-import { storeToRefs } from "pinia";
-import { useUserStore } from "../../stores/user.js";
-import swalHandler from "../../utils/swalHandler.js";
-
-const { proxy } = getCurrentInstance();
-const { name } = storeToRefs(useUserStore());
-
-const profileData = ref({
-  id: "",
-  profile_image_url: "",
-  experience_years: 0,
-  description: "",
-  skill_ids: [],
-});
-
-const skillList = ref([]);
-
-async function getCoachProfile() {
-  try {
-    const { data } = await getCoach();
-
-    profileData.value = data;
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { message } = error.response.data;
-      msg = message;
-    }
-
-    throw new Error(`[getCoachProfile] error : ${msg}`);
-  }
-}
-
-async function getSkillList() {
-  try {
-    const { data } = await getSkills();
-    skillList.value = data;
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { message } = error.response.data;
-      msg = message;
-    }
-
-    throw new Error(`[getSkillList] error : ${msg}`);
-  }
-}
-
-function functionToggleSkill(skillId) {
-  const index = profileData.value.skill_ids.indexOf(skillId);
-  if (index > -1) {
-    profileData.value.skill_ids.splice(index, 1);
-  } else {
-    profileData.value.skill_ids.push(skillId);
-  }
-}
-
-function handleImageError() {
-  swalHandler(proxy.$swal, "圖片載入失敗，請檢查網址是否正確");
-}
-
-// 儲存教練資料
-async function updateCoachProfile() {
-  try {
-    const { status, data } = await putCoach(profileData.value);
-    if (status === "success") {
-      profileData.value = data;
-      swalHandler(proxy.$swal, "資料已更新");
-    }
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { message } = error.response.data;
-      msg = message;
-    }
-
-    throw new Error(`[updateCoachProfile] error : ${msg}`);
-  }
-}
-
-onMounted(() => {
-  getSkillList();
-  getCoachProfile();
-});
-</script>
+<style lang="scss" scoped>
+</style>

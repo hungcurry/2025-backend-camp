@@ -1,3 +1,88 @@
+<script setup>
+import { ref, onMounted, getCurrentInstance } from "vue";
+import { CoachAPI } from "@/api/index.js";
+import swalHandler from "@/utils/swalHandler.js";
+
+const { proxy } = getCurrentInstance();
+
+const skillList = ref([]);
+const newSkillName = ref("");
+
+async function getSkillList() {
+  try {
+    const { data } = await CoachAPI.getSkills();
+    skillList.value = data;
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { message } = error.response.data;
+      msg = message;
+    }
+
+    throw new Error(`[getSkillList] error : ${msg}`);
+  }
+}
+
+async function addSkill() {
+  try {
+    const { status } = await CoachAPI.postSkill({
+      name: newSkillName.value,
+    });
+
+    if (status === "success") {
+      getSkillList();
+      swalHandler(proxy.$swal, "新增技能成功");
+    }
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { status, message } = error.response.data;
+      msg = message;
+
+      if (status === "failed") {
+        swalHandler(proxy.$swal, message);
+        return;
+      }
+    }
+
+    throw new Error(`[getSkillList] error : ${msg}`);
+  } finally {
+    newSkillName.value = "";
+  }
+}
+
+async function removeSkill(id) {
+  try {
+    const { status } = await CoachAPI.deleteSkill(id);
+
+    if (status === "success") {
+      getSkillList();
+      swalHandler(proxy.$swal, "刪除技能成功");
+    }
+  } catch (error) {
+    let msg = error.message;
+
+    if (Object.hasOwn(error.response, "data")) {
+      const { status, message } = error.response.data;
+      msg = message;
+
+      if (status === "failed") {
+        swalHandler(proxy.$swal, message);
+        return;
+      }
+    }
+
+    throw new Error(`[getSkillList] error : ${msg}`);
+  }
+}
+
+onMounted(() => {
+  getSkillList();
+});
+</script>
+
 <template>
   <div class="max-w-6xl mx-auto">
     <div class="mb-8">
@@ -92,87 +177,5 @@
   </div>
 </template>
 
-<script setup>
-import { ref, onMounted, getCurrentInstance } from "vue";
-import { getSkills, postSkill, deleteSkill } from "../../api/index.js";
-import swalHandler from "../../utils/swalHandler.js";
-
-const { proxy } = getCurrentInstance();
-
-const skillList = ref([]);
-const newSkillName = ref("");
-
-async function getSkillList() {
-  try {
-    const { data } = await getSkills();
-    skillList.value = data;
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { message } = error.response.data;
-      msg = message;
-    }
-
-    throw new Error(`[getSkillList] error : ${msg}`);
-  }
-}
-
-async function addSkill() {
-  try {
-    const { status } = await postSkill({
-      name: newSkillName.value,
-    });
-
-    if (status === "success") {
-      getSkillList();
-      swalHandler(proxy.$swal, "新增技能成功");
-    }
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { status, message } = error.response.data;
-      msg = message;
-
-      if (status === "failed") {
-        swalHandler(proxy.$swal, message);
-        return;
-      }
-    }
-
-    throw new Error(`[getSkillList] error : ${msg}`);
-  } finally {
-    newSkillName.value = "";
-  }
-}
-
-async function removeSkill(id) {
-  try {
-    const { status } = await deleteSkill(id);
-
-    if (status === "success") {
-      getSkillList();
-      swalHandler(proxy.$swal, "刪除技能成功");
-    }
-  } catch (error) {
-    let msg = error.message;
-
-    if (Object.hasOwn(error.response, "data")) {
-      const { status, message } = error.response.data;
-      msg = message;
-
-      if (status === "failed") {
-        swalHandler(proxy.$swal, message);
-        return;
-      }
-    }
-
-    throw new Error(`[getSkillList] error : ${msg}`);
-  }
-}
-
-onMounted(() => {
-  getSkillList();
-});
-</script>
+<style lang='scss' scoped>
+</style>

@@ -1,28 +1,29 @@
-import request from "./request.js";
+import request from '@/api/request.js'
+
 export function postLogin(data) {
-  return request.post("users/login", data);
+  return request.post('users/login', data)
 }
 
 export function postSignup(data) {
-  return request.post("users/signup", data);
+  return request.post('users/signup', data)
 }
 
 export function getUserCourses() {
-  return request.get("users/courses");
+  return request.get('users/courses')
 }
 
 export function getUserCreditPackage() {
-  return request.get("users/credit-package");
+  return request.get('users/credit-package')
 }
 
 export function getUserProfile() {
-  return request.get("users/profile");
+  return request.get('users/profile')
 }
 
 export function putUserProfile(data) {
-  return request.put("users/profile", data);
+  return request.put('users/profile', data)
 }
 
 export function putUserPassword(data) {
-  return request.put("users/password", data);
+  return request.put('users/password', data)
 }

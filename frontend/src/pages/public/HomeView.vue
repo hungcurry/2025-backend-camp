@@ -1,3 +1,20 @@
+<script setup>
+import { computed } from "vue";
+
+const coaches = [
+  { id: 1, name: "Jack", image: "/people-08.png" },
+  { id: 2, name: "Lisa", image: "/people-09.png" },
+  { id: 3, name: "Mike", image: "/people-10.png" },
+  { id: 4, name: "Ken", image: "/people-11.png" },
+  { id: 5, name: "Willen", image: "/people-12.png" },
+  { id: 6, name: "Amy", image: "/people-13.png" },
+];
+
+const displayCoaches = computed(() => {
+  return [...coaches, ...coaches, ...coaches, ...coaches];
+});
+</script>
+
 <template>
   <div>
     <section
@@ -1045,24 +1062,7 @@
   </div>
 </template>
 
-<script setup>
-import { computed } from "vue";
-
-const coaches = [
-  { id: 1, name: "Jack", image: "/people-08.png" },
-  { id: 2, name: "Lisa", image: "/people-09.png" },
-  { id: 3, name: "Mike", image: "/people-10.png" },
-  { id: 4, name: "Ken", image: "/people-11.png" },
-  { id: 5, name: "Willen", image: "/people-12.png" },
-  { id: 6, name: "Amy", image: "/people-13.png" },
-];
-
-const displayCoaches = computed(() => {
-  return [...coaches, ...coaches, ...coaches, ...coaches];
-});
-</script>
-
-<style scoped>
+<style lang="scss" scoped>
 @keyframes scroll {
   from {
     transform: translateX(0);

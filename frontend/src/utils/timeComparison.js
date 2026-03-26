@@ -1,4 +1,4 @@
-import { formatLocal } from "./formatDateTime.js";
+import { formatLocal } from "@/utils/formatDateTime.js";
 
 // 檢查課程是否正在進行中
 export function isCourseInProgress(startUtcTime, endUtcTime, now) {
