@@ -1,5 +1,5 @@
 import request from '@/api/request.js'
 
-export function createOrder(creditPackageId) {
+export function postOrder(creditPackageId) {
   return request.post(`orders/${creditPackageId}`)
 }

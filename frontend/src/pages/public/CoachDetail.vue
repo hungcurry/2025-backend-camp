@@ -143,7 +143,7 @@ onMounted(() => {
         <img
           :src="coachDetail.coach.profile_image_url"
           alt="Coach Photo"
-          class="w-40 h-40 sm:w-48 sm:h-48 md:w-52 md:h-52 rounded-full object-cover shadow-lg flex-shrink-0"
+          class="w-40 h-40 sm:w-48 sm:h-48 md:w-52 md:h-52 rounded-full object-cover shadow-lg shrink-0"
         />
 
         <div class="flex-1 w-full text-center md:text-left">
