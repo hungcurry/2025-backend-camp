@@ -6,45 +6,48 @@ import { ROUTE_TABLE } from '@/config/routeTable.js'
 // 精準鎖定免驗證的例外路徑（如：登入、註冊）
 function verifyRoute(prefix, route, method) {
   const key = `${method}-${prefix}`
-  let notNeedAuth = false
+  const config = ROUTE_TABLE[key]
 
-  const hasSubRoute = route.length > prefix.length
-
-  if (!Object.hasOwn(ROUTE_TABLE, key) && !hasSubRoute) {
-    return notNeedAuth
+  // 沒有設定 → 需要 auth
+  if (!config) {
+    return false
   }
 
-  const config = ROUTE_TABLE[key]
+  // 整個 prefix 公開
+  if (config === true) {
+    return true
+  }
+
   const subRoute = route.replace(prefix, '')
 
+  // 例如 GET /courses
   if (subRoute === '') {
-    notNeedAuth = true
-    return notNeedAuth
+    return true
   }
 
-  if (config === Array) {
-    for (const pattern of config) {
-      // 字串完全匹配
-      if (typeof pattern === 'string' && subRoute === pattern) {
-        notNeedAuth = true
-        break
+  if (Array.isArray(config)) {
+    return config.some((pattern) => {
+      if (typeof pattern === 'string') {
+        return subRoute === pattern
       }
 
-      // 正則表達式匹配
-      if (pattern instanceof RegExp && pattern.test(subRoute)) {
-        notNeedAuth = true
-        break
+      if (pattern instanceof RegExp) {
+        return pattern.test(subRoute)
       }
-    }
+
+      return false
+    })
   }
 
-  return notNeedAuth
+  return false
 }
 function notNeedAuth(url, method) {
-  const prefix = url.split('/')[0]
-  const isPublicRoute = verifyRoute(prefix, url, method)
+  if (!url || !method) return false
 
-  return isPublicRoute
+  const cleanUrl = url.replace(/^\/+/, '')
+  const prefix = cleanUrl.split('/')[0]
+
+  return verifyRoute(prefix, cleanUrl, method.toLowerCase())
 }
 
 // 建立 axios 實例
