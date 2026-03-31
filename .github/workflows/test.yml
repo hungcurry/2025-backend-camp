@@ -2,6 +2,8 @@ name: Check + 初階/進階 任務驗證
 on:
   push:
     branches: ['*']
+    # branches: ['*'] ✅ 觸發 main / develop
+    # branches: ['**'] ✅ 觸發 feature/newebpay / feature/api/v1
   pull_request:
     branches: ['*']
 
