@@ -12,6 +12,9 @@ const auth = require('../middlewares/auth')({
 const isCoach = require('../middlewares/isCoach')
 const adminController = require('../controllers/admin')
 
+// auth = 驗證 JWT，確認有登入
+// isCoach = 確認是教練身份
+// 💡 通過這兩關檢查後，才會執行 postCourse
 router.post('/coaches/courses', auth, isCoach, adminController.postCourse)
 
 router.get('/coaches/revenue', auth, isCoach, adminController.getCoachRevenue)

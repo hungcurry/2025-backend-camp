@@ -124,6 +124,14 @@ FIREBASE_SERVICE_ACCOUNT=''          # Firebase Service Account JSON 內容
 
 ### 重要提醒
 
+```
+如果你不是用 Docker 跑後端，而是直接在電腦上啟動（例如 npm run dev）：
+Docker 環境中
+DB_HOST 通常會是 container 名稱（例如 db、postgres）
+但在本機直接跑時
+👉 後端程式只能透過 localhost 才能連到你電腦上的資料庫
+```
+
 - **本機開發**: 若要在本機直接執行後端服務（非 Docker），需將 `DB_HOST` 改為 `localhost`
 - **安全性**: 生產環境務必修改 `JWT_SECRET` 和所有預設密碼
 - **資料庫同步**: 生產環境請將 `DB_SYNCHRONIZE` 設為 `false`，使用 migration 管理資料表結構

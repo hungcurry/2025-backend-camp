@@ -1,63 +1,312 @@
-name: Check
+name: Check + 初階/進階 任務驗證
 on:
   push:
-
+    branches: ['*']
+  pull_request:
+    branches: ['*']
 
 jobs:
+  # --- 初階 任務驗證階段 ---
+  validate-missions:
+    name: 驗證初階任務 7 題
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Task 1 - Check website title
+        run: |
+          echo "📋 題目 1：檢查網站 Title"
+          if grep -q "<title>LiveFit</title>" frontend/index.html; then
+            echo "✅ 通過：Title 已改為 LiveFit"
+          else
+            echo "❌ 失敗：請將 frontend/index.html 中的 <title>LiveFit+</title> 改為 <title>LiveFit</title>"
+            exit 1
+          fi
+
+      - name: Task 2 - Check logo image
+        run: |
+          echo "📋 題目 2：檢查網站 Logo"
+          if grep -q "logo-text-v2.png" frontend/src/layouts/LayoutHeader.vue; then
+            echo "✅ 通過：Logo 已改為 logo-text-v2.png"
+          else
+            echo "❌ 失敗：請將 frontend/src/layouts/LayoutHeader.vue 中的 logo-text.png 改為 logo-text-v2.png"
+            exit 1
+          fi
+
+      - name: Task 3 - Check JWT expiration
+        run: |
+          echo "📋 題目 3：檢查 Token 過期設定"
+          if grep -q "JWT_EXPIRES_DAY=7d" .env.example; then
+            echo "✅ 通過：JWT_EXPIRES_DAY 已改為 7d"
+          else
+            echo "❌ 失敗：請將 .env.example 中的 JWT_EXPIRES_DAY=30d 改為 JWT_EXPIRES_DAY=7d"
+            exit 1
+          fi
+
+      - name: Task 4 - Check Entity comment
+        run: |
+          echo "📋 題目 4：檢查 Entity 欄位說明"
+          if head -10 backend/entities/CreditPackages.js | grep -q "堂數方案資料表"; then
+            echo "✅ 通過：已新增欄位說明註解"
+          else
+            echo "❌ 失敗：請在 backend/entities/CreditPackages.js 檔案最上方新增欄位說明註解"
+            exit 1
+          fi
+
+      - name: Task 5 - Check password length
+        run: |
+          echo "📋 題目 5：檢查密碼長度限制"
+          if grep -q "\.{10,16}" backend/controllers/users.js; then
+            echo "✅ 通過：密碼長度已改為 10-16"
+          else
+            echo "❌ 失敗：請將 backend/controllers/users.js 中的 .{8,16} 改為 .{10,16}"
+            exit 1
+          fi
+
+      - name: Task 6 - Check API total field
+        run: |
+          echo "📋 題目 6：檢查 API 回傳總筆數"
+          if grep -q "total: creditPackage.length" backend/controllers/creditPackage.js; then
+            echo "✅ 通過：已新增 total 欄位"
+          else
+            echo "❌ 失敗：請在 backend/controllers/creditPackage.js 的 getAll 函數中新增 total: creditPackage.length"
+            exit 1
+          fi
+
+      - name: Task 7 - Check healthcheck response
+        run: |
+          echo "📋 題目 7：檢查健康檢查回傳格式"
+          if grep -A5 "app.get('/healthcheck'" backend/app.js | grep -q "res.status(200).json"; then
+            echo "✅ 通過：healthcheck 已改為 JSON 格式"
+          else
+            echo "❌ 失敗：請將 backend/app.js 中的 healthcheck 路由改為回傳 JSON 格式"
+            exit 1
+          fi
+
+      - name: All missions completed
+        run: |
+          echo ""
+          echo "🎉🎉🎉 恭喜！初階任務全部通過！🎉🎉🎉"
+          echo ""
+          echo "╔════════════════════════════════════════════════════╗"
+          echo "║           初階任務驗證結果                          ║"
+          echo "╠════════════════════════════════════════════════════╣"
+          echo "║  題目 1：修改網站 Title              ✅ 通過        ║"
+          echo "║  題目 2：更換網站 Logo               ✅ 通過        ║"
+          echo "║  題目 3：修改 Token 過期設定         ✅ 通過        ║"
+          echo "║  題目 4：新增 Entity 欄位說明        ✅ 通過        ║"
+          echo "║  題目 5：修改密碼長度限制            ✅ 通過        ║"
+          echo "║  題目 6：新增 API 回傳總筆數         ✅ 通過        ║"
+          echo "║  題目 7：修改健康檢查回傳格式        ✅ 通過        ║"
+          echo "╠════════════════════════════════════════════════════╣"
+          echo "║  ✅ 全部 7 題通過！                                 ║"
+          echo "╚════════════════════════════════════════════════════╝"
+
+  # --- 進階 任務驗證階段 ---
+  validate-screenshots:
+    name: 驗證進階任務 8 題
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Check screenshots folder exists
+        run: |
+          echo "📁 檢查 screenshots 資料夾是否存在"
+          if [ -d "screenshots" ]; then
+            echo "✅ screenshots 資料夾存在"
+          else
+            echo "⚠️ screenshots 資料夾不存在，跳過進階任務驗證"
+            echo "💡 提示：如果您只完成初階任務 (LV1)，可以忽略此檢查"
+            echo "SKIP_VALIDATION=true" >> $GITHUB_ENV
+          fi
+
+      - name: Check screenshot 01 - Register
+        if: env.SKIP_VALIDATION != 'true'
+        run: |
+          echo "📋 截圖 1：檢查註冊成功截圖"
+          if [ -f "screenshots/01-register.png" ] || [ -f "screenshots/01-register.jpg" ] || [ -f "screenshots/01-register.jpeg" ]; then
+            echo "✅ 通過：01-register 截圖已上傳"
+          else
+            echo "❌ 失敗：請上傳 screenshots/01-register.png（兩個帳號註冊成功）"
+            exit 1
+          fi
+
+      - name: Check screenshot 02 - Add Credit Package
+        if: env.SKIP_VALIDATION != 'true'
+        run: |
+          echo "📋 截圖 2：檢查新增組合包方案截圖"
+          if [ -f "screenshots/02-add-credit-package.png" ] || [ -f "screenshots/02-add-credit-package.jpg" ] || [ -f "screenshots/02-add-credit-package.jpeg" ]; then
+            echo "✅ 通過：02-add-credit-package 截圖已上傳"
+          else
+            echo "❌ 失敗：請上傳 screenshots/02-add-credit-package.png（DBeaver 新增組合包方案成功）"
+            exit 1
+          fi
+
+      - name: Check screenshot 03 - Add Skill
+        if: env.SKIP_VALIDATION != 'true'
+        run: |
+          echo "📋 截圖 3：檢查新增技能截圖"
+          if [ -f "screenshots/03-add-skill.png" ] || [ -f "screenshots/03-add-skill.jpg" ] || [ -f "screenshots/03-add-skill.jpeg" ]; then
+            echo "✅ 通過：03-add-skill 截圖已上傳"
+          else
+            echo "❌ 失敗：請上傳 screenshots/03-add-skill.png（後台新增技能成功）"
+            exit 1
+          fi
+
+      - name: Check screenshot 04 - Upgrade Coach
+        if: env.SKIP_VALIDATION != 'true'
+        run: |
+          echo "📋 截圖 4：檢查升級教練截圖"
+          if [ -f "screenshots/04-upgrade-coach.png" ] || [ -f "screenshots/04-upgrade-coach.jpg" ] || [ -f "screenshots/04-upgrade-coach.jpeg" ]; then
+            echo "✅ 通過：04-upgrade-coach 截圖已上傳"
+          else
+            echo "❌ 失敗：請上傳 screenshots/04-upgrade-coach.png（教練資格管理升級成功）"
+            exit 1
+          fi
+
+      - name: Check screenshot 05 - Create Course
+        if: env.SKIP_VALIDATION != 'true'
+        run: |
+          echo "📋 截圖 5：檢查教練開課截圖"
+          if [ -f "screenshots/05-create-course.png" ] || [ -f "screenshots/05-create-course.jpg" ] || [ -f "screenshots/05-create-course.jpeg" ]; then
+            echo "✅ 通過：05-create-course 截圖已上傳"
+          else
+            echo "❌ 失敗：請上傳 screenshots/05-create-course.png（教練開課成功）"
+            exit 1
+          fi
+
+      - name: Check screenshot 06 - Buy Credits
+        if: env.SKIP_VALIDATION != 'true'
+        run: |
+          echo "📋 截圖 6：檢查購買堂數截圖"
+          if [ -f "screenshots/06-buy-credits.png" ] || [ -f "screenshots/06-buy-credits.jpg" ] || [ -f "screenshots/06-buy-credits.jpeg" ]; then
+            echo "✅ 通過：06-buy-credits 截圖已上傳"
+          else
+            echo "❌ 失敗：請上傳 screenshots/06-buy-credits.png（學員購買堂數成功）"
+            exit 1
+          fi
+
+      - name: Check screenshot 07 - Book Course
+        if: env.SKIP_VALIDATION != 'true'
+        run: |
+          echo "📋 截圖 7：檢查預約課程截圖"
+          if [ -f "screenshots/07-book-course.png" ] || [ -f "screenshots/07-book-course.jpg" ] || [ -f "screenshots/07-book-course.jpeg" ]; then
+            echo "✅ 通過：07-book-course 截圖已上傳"
+          else
+            echo "❌ 失敗：請上傳 screenshots/07-book-course.png（學員預約課程成功）"
+            exit 1
+          fi
+
+      - name: Check screenshot 08 - Booking Record
+        if: env.SKIP_VALIDATION != 'true'
+        run: |
+          echo "📋 截圖 8：檢查預約紀錄截圖"
+          if [ -f "screenshots/08-booking-record.png" ] || [ -f "screenshots/08-booking-record.jpg" ] || [ -f "screenshots/08-booking-record.jpeg" ]; then
+            echo "✅ 通過：08-booking-record 截圖已上傳"
+          else
+            echo "❌ 失敗：請上傳 screenshots/08-booking-record.png（預約紀錄畫面）"
+            exit 1
+          fi
+
+      - name: All advanced missions completed
+        if: env.SKIP_VALIDATION != 'true'
+        run: |
+          echo ""
+          echo "🎉🎉🎉 恭喜！進階任務截圖全部上傳完成！🎉🎉🎉"
+          echo ""
+          echo "╔════════════════════════════════════════════════════════╗"
+          echo "║              進階任務截圖驗證結果                       ║"
+          echo "╠════════════════════════════════════════════════════════╣"
+          echo "║  截圖 1：兩個帳號註冊成功              ✅ 已上傳        ║"
+          echo "║  截圖 2：DBeaver 新增組合包方案成功    ✅ 已上傳        ║"
+          echo "║  截圖 3：後台新增技能成功              ✅ 已上傳        ║"
+          echo "║  截圖 4：教練資格管理升級成功          ✅ 已上傳        ║"
+          echo "║  截圖 5：教練開課成功                  ✅ 已上傳        ║"
+          echo "║  截圖 6：學員購買堂數成功              ✅ 已上傳        ║"
+          echo "║  截圖 7：學員預約課程成功              ✅ 已上傳        ║"
+          echo "║  截圖 8：預約紀錄畫面                  ✅ 已上傳        ║"
+          echo "╠════════════════════════════════════════════════════════╣"
+          echo "║  ✅ 全部 8 張截圖已上傳！                               ║"
+          echo "╚════════════════════════════════════════════════════════╝"
+          echo ""
+          echo "🏆 恭喜完成 LV2 進階任務！"
+
+      - name: Skip message
+        if: env.SKIP_VALIDATION == 'true'
+        run: |
+          echo ""
+          echo "╔════════════════════════════════════════════════════════╗"
+          echo "║              進階任務截圖驗證結果                       ║"
+          echo "╠════════════════════════════════════════════════════════╣"
+          echo "║  ⚠️  未偵測到 screenshots 資料夾                        ║"
+          echo "║                                                        ║"
+          echo "║  如果您只完成 LV1 初階任務，可以忽略此訊息              ║"
+          echo "║  如果您要完成 LV2 進階任務，請：                        ║"
+          echo "║  1. 建立 screenshots 資料夾                            ║"
+          echo "║  2. 上傳 8 張截圖（01-register.png ~ 08-booking-record.png）║"
+          echo "╚════════════════════════════════════════════════════════╝"
+
+  # --- 原本的 Build 階段 ---
   build :
     name: build
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout to Repo Directory
-      uses: actions/checkout@v4
-    - name: Use Node.js 24
-      uses: actions/setup-node@v6
-      with:
-        node-version: '24'
-        cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
-    - name: Restore cache node modules
-      id: cache
-      uses: actions/cache/restore@v4
-      with:
-        path: backend/node_modules
-        key: ${{ runner.os }}-node-backend-${{ hashFiles('package-lock.json') }}
-    - name: Install dependencies
-      working-directory: backend
-      if: steps.cache.outputs.cache-hit != 'true'
-      run: npm ci
-    - name: update cache node modules
-      if: steps.cache.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
-      with:
-        path: backend/node_modules
-        key: ${{ runner.os }}-node-backend-${{ hashFiles('package-lock.json') }}
-  # eslint-scan :
-  #   name: Eslint Scanning
-  #   needs: [build]
-  #   runs-on: ubuntu-latest
-  #   steps:
-  #   - name: Checkout to Repo Directory
-  #     uses: actions/checkout@v4
-  #   - name: Use Node.js 22
-  #     uses: actions/setup-node@v6
-  #     with:
-  #       node-version: '22'
-  #       cache: 'npm'
-  #       cache-dependency-path: backend/package-lock.json
-  #   - name: Restore cache node modules
-  #     id: cache
-  #     uses: actions/cache/restore@v4
-  #     with:
-  #       path: backend/node_modules
-  #       key: ${{ runner.os }}-node-backend-${{ hashFiles('package-lock.json') }}
-  #       restore-keys: |
-  #         ${{ runner.os }}-node-backend-
-  #   - name: Eslint Scan
-  #     uses: reviewdog/action-eslint@v1
-  #     with:
-  #       workdir: ./backend
-  #       reporter: github-check
+      - name: Checkout to Repo Directory
+        uses: actions/checkout@v4
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      - name: Restore cache node modules
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-node-backend-${{ hashFiles('package-lock.json') }}
+      - name: Install dependencies
+        working-directory: backend
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: npm ci
+      - name: update cache node modules
+        if: steps.cache.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v4
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-node-backend-${{ hashFiles('package-lock.json') }}
+
+  eslint-scan :
+    name: Eslint Scanning
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout to Repo Directory
+        uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      - name: Restore cache node modules
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-node-backend-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-backend-
+      # github-check 會調用 GitHub API 額外建立一個名為 'eslint' 的 Check Run
+      # 優點：錯誤會直接標註在 Pull Request 的代碼行號旁，無需翻閱 Action Log
+      - name: Eslint Scan
+        uses: reviewdog/action-eslint@v1
+        with:
+          workdir: ./backend
+          reporter: github-check
+
   integration-test:
     name: Run integration Test
     needs: [build]
@@ -82,61 +331,58 @@ jobs:
           POSTGRES_PASSWORD: ${{ env.DB_PASSWORD }}
           POSTGRES_DB: ${{ env.DB_DATABASE }}
     steps:
-    - name: Checkout to Repo Directory
-      uses: actions/checkout@v4
-    - name: Use Node.js 24
-      uses: actions/setup-node@v6
-      with:
-        node-version: '24'
-        cache: 'npm'
-        cache-dependency-path: backend/package-lock.json
-    - name: Restore cache node modules
-      id: cache
-      uses: actions/cache/restore@v4
-      with:
-        path: backend/node_modules
-        key: ${{ runner.os }}-node-backend-${{ hashFiles('package-lock.json') }}
-        restore-keys: |
-          ${{ runner.os }}-node-backend-
-    - name: Make env file
-      uses: SpicyPizza/create-envfile@v1
-      with:
-        envkey_NODE_ENV: production
-        envkey_DB_HOST: ${{ env.DB_HOST }}
-        envkey_DB_PORT: ${{ env.DB_PORT }}
-        envkey_DB_DATABASE: ${{ env.DB_DATABASE }}
-        envkey_DB_USERNAME: ${{ env.DB_USERNAME }}
-        envkey_DB_PASSWORD: ${{ env.DB_PASSWORD }}
-        envkey_DB_SYNCHRONIZE: true
-        envkey_DB_ENABLE_SSL: false
-        envkey_JWT_SECRET: hexschool666
-        envkey_JWT_EXPIRES_DAY: 30d
-        envkey_LOG_LEVEL: debug
-        envkey_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
-        envkey_FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
-        envkey_PORT: 3000
-        directory: backend
-        file_name: .env
-    # - name: init schema
-    #   working-directory: backend
-    #   run: npm run init:schema
-    - name: test server
-      working-directory: backend
-      run: npm run test:integration
-    - name: upload coverage report
-      uses: actions/upload-artifact@v4
-      with:
-        name: IntegrationTest Coverage report
-        path: backend/coverage
-        retention-days: 1
-    - name: Integration Test Coverage monitor
-      uses: slavcodev/coverage-monitor-action@v1
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        coverage_path: "backend/coverage/clover.xml"
-        threshold_alert: 10
-        threshold_warning: 50
-        comment_context: 'Integration Test Report'
-        
-        
-        
+      - name: Checkout to Repo Directory
+        uses: actions/checkout@v4
+      - name: Use Node.js 24
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+      - name: Restore cache node modules
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-node-backend-${{ hashFiles('package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-backend-
+      - name: Make env file
+        uses: SpicyPizza/create-envfile@v1
+        with:
+          envkey_NODE_ENV: production
+          envkey_DB_HOST: ${{ env.DB_HOST }}
+          envkey_DB_PORT: ${{ env.DB_PORT }}
+          envkey_DB_DATABASE: ${{ env.DB_DATABASE }}
+          envkey_DB_USERNAME: ${{ env.DB_USERNAME }}
+          envkey_DB_PASSWORD: ${{ env.DB_PASSWORD }}
+          envkey_DB_SYNCHRONIZE: true
+          envkey_DB_ENABLE_SSL: false
+          envkey_JWT_SECRET: hexschool666
+          envkey_JWT_EXPIRES_DAY: 30d
+          envkey_LOG_LEVEL: debug
+          envkey_FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          envkey_FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          envkey_PORT: 3000
+          directory: backend
+          file_name: .env
+      # - name: init schema
+      #   working-directory: backend
+      #   run: npm run init:schema
+      - name: test server
+        working-directory: backend
+        run: npm run test:integration
+      - name: upload coverage report
+        uses: actions/upload-artifact@v4
+        with:
+          name: IntegrationTest Coverage report
+          path: backend/coverage
+          retention-days: 1
+      - name: Integration Test Coverage monitor
+        uses: slavcodev/coverage-monitor-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          coverage_path: "backend/coverage/clover.xml"
+          threshold_alert: 10
+          threshold_warning: 50
+          comment_context: 'Integration Test Report'

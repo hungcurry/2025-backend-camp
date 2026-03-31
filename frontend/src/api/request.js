@@ -49,25 +49,30 @@ function notNeedAuth(url, method) {
 
   return verifyRoute(prefix, cleanUrl, method.toLowerCase())
 }
-
+//----------------------------------------------
 // 建立 axios 實例
 const request = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL,
   timeout: 10000, // 請求超時時間
+  // 設定 headers 預設值
+  headers: {
+    'Content-Type': 'application/json',
+    Accept: 'application/json',
+  },
 })
-
 // 送出API以前
 // 請求攔截器 - 自動添加 token
 request.interceptors.request.use(
   (config) => {
+    // console.log('送出API以前' , config);
     // 如果這個 API 不需要登入驗證，就直接放行，不要加 token
     if (notNeedAuth(config.url, config.method)) {
       return config
     }
 
-    // 從 cookie 中取得 token
+    // ~假設config.url 為 "/mseeage"，
+    // 因為 notNeedAuth 回傳 false，則進入這裡
     const token = getDataFromCookieByKey('token')
-
     // 如果有 token 就自動加到 header
     if (token) {
       config.headers.Authorization = `Bearer ${token}`
@@ -79,11 +84,13 @@ request.interceptors.request.use(
     return Promise.reject(error)
   },
 )
-
 // 拿回資料以前
 // 回應攔截器 - 統一處理錯誤
 request.interceptors.response.use(
+  // ~TS版本,請使用response,保留整個 Axios 回傳，
+  // ~不要拆成 response.data，這樣等於把axios的AxiosResponse<T>拆掉
   (response) => {
+    // console.log('拿回資料以前', response);
     return response.data
   },
   (error) => {

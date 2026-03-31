@@ -35,11 +35,15 @@ function isNotValidInteger (value) {
 class AdminController {
   static async postCourse (req, res, next) {
     try {
+      // ← 拿到「目前登入的教練」的 ID
       const { id } = req.user
+      // 課程資料
       const {
         skill_id: skillId, name, description, start_at: startAt, end_at: endAt,
         max_participants: maxParticipants, meeting_url: meetingUrl
       } = req.body
+
+      // 檢查資料、驗證...
       if (isUndefined(skillId) || isNotValidSting(skillId) ||
       isUndefined(name) || isNotValidSting(name) ||
       isUndefined(description) || isNotValidSting(description) ||
@@ -68,8 +72,11 @@ class AdminController {
         return
       }
       const courseRepo = dataSource.getRepository('Course')
+
+      // 存進資料庫
+      // 💡 這樣資料庫就知道「這堂課是誰開的」！
       const newCourse = courseRepo.create({
-        user_id: id,
+        user_id: id, // ← 這堂課是「這位教練」開的
         skill_id: skillId,
         name,
         description,

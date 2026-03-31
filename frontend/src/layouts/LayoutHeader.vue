@@ -32,7 +32,7 @@ const closeMobileMenu = () => {
       <div class="flex justify-between items-center h-20 relative">
         <h1 class="text-xl md:text-2xl font-bold text-primary-0">
           <router-link to="/" @click="closeMobileMenu" class="flex items-center">
-            <img src="/logo-text.png" alt="LiveFit+" class="h-6 w-auto" />
+            <img src="/logo-text-v2.png" alt="LiveFit+" class="h-6 w-auto" />
             <span class="sr-only">LiveFit+</span>
           </router-link>
         </h1>
