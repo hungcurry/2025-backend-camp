@@ -25,15 +25,13 @@ docker compose up postgres -d
 # DB_HOST=localhost
 # 然後個複製一份 到frontend/backend 資料夾裡面
 
-# 3. 安裝後端依賴
+# 3.啟動後端開發伺服器
 cd ..
 cd backend
 npm install
-
-# 4. 啟動後端開發伺服器
 npm run dev
 
-# 5. 另開終端機，啟動前端開發伺服器
+# 4. 另開終端機，啟動前端開發伺服器
 cd ..
 cd frontend
 npm install
@@ -68,6 +66,12 @@ Aa12345678
 
 ### (一).藍新金流 + ngrok
 ```jsx
+// 安裝文件
+// https://hackmd.io/swlhkvAWTc-0XD6Cn8IXpw?view#2ngrok
+
+// 串接文件
+// https://hackmd.io/HYBMkvilRlWKrnFD7cGfrA
+
 // # === 藍新金流設定 ===
 // NEWEBPAY_MERCHANT_ID=你的商店代號
 // NEWEBPAY_HASH_KEY=你的HashKey
@@ -81,7 +85,7 @@ Aa12345678
 // ~金流文件
 https://hackmd.io/HYBMkvilRlWKrnFD7cGfrA
 
-~啟動 ngrok 指令
+~啟動指令: ngrok 指令 (啟動後 才可以連-藍新金流)
 // 確保 Docker 已啟動（backend 跑在 port 8080），然後開另一個終端機執行：
 // ngrok http --url=你的domain名稱 8080
 // ngrok 執行後不要關閉這個終端機視窗，它需要一直開著。

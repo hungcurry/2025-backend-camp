@@ -4,6 +4,12 @@ module.exports = new EntitySchema({
   name: 'Order',
   tableName: 'ORDER',
   columns: {
+    // name: {
+    //   type: 'varchar', // 字串型別
+    //   length: 50, // 最大長度限制 50 個字元
+    //   unique: true, // 唯一性約束：資料庫內不允許有兩個重複的 Skill 名稱
+    //   nullable: false // 不可以為空值
+    // },
     id: {
       primary: true,
       type: 'uuid',
@@ -60,22 +66,27 @@ module.exports = new EntitySchema({
     }
   },
   relations: {
+    // 與 User 資料表的關聯
     User: {
-      target: 'User',
-      type: 'many-to-one',
+      target: 'User', // 目標 Entity，也就是關聯的資料表是 User
+      type: 'many-to-one', // 關聯型態：多對一 (多個 Order 對應到一個 User)
       joinColumn: {
-        name: 'user_id',
-        referencedColumnName: 'id',
-        foreignKeyConstraintName: 'order_user_id_fk'
+        // 設定 Join 的資料庫欄位
+        name: 'user_id', // 本表對應的欄位名稱 (Order 表的 user_id)
+        referencedColumnName: 'id', // 對方表 (User) 的主鍵欄位名稱
+        foreignKeyConstraintName: 'order_user_id_fk' // 外鍵約束名稱
       }
     },
+
+    // 與 CreditPackage 資料表的關聯
     CreditPackage: {
-      target: 'CreditPackage',
-      type: 'many-to-one',
+      target: 'CreditPackage', // 目標 Entity，是 CreditPackage
+      type: 'many-to-one', // 多個 Order 對應到一個 CreditPackage
       joinColumn: {
-        name: 'credit_package_id',
-        referencedColumnName: 'id',
-        foreignKeyConstraintName: 'order_credit_package_id_fk'
+        // 設定 Join 欄位
+        name: 'credit_package_id', // 本表欄位名稱 (Order 表的 credit_package_id)
+        referencedColumnName: 'id', // 對方表主鍵欄位 (CreditPackage 的 id)
+        foreignKeyConstraintName: 'order_credit_package_id_fk' // 外鍵名稱
       }
     }
   }

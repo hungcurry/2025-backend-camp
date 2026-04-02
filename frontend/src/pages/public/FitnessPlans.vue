@@ -52,6 +52,7 @@ async function getCreditPackageList() {
   }
 }
 
+// 藍新金流購買流程：
 async function buyCreditPackage(id) {
   try {
     if (!getDataFromCookieByKey('token')) {
@@ -61,6 +62,14 @@ async function buyCreditPackage(id) {
     const { status, data } = await OrderAPI.postOrder(id)
     if (status === 'success') {
       // 建立隱藏表單，提交到藍新金流付款頁面
+      // 測試用：模擬藍新金流回傳資料
+      // <form id="newebpay_form" method="POST" action="https://core.newebpay.com/MPG/mpg_gateway">
+      //   <input type="hidden" name="MerchantID" value="MS12345678">
+      //   <input type="hidden" name="TradeInfo" value="abc123encrypted...">
+      //   <input type="hidden" name="TradeSha" value="sha256hash...">
+      //   <input type="hidden" name="Version" value="2.0">
+      // </form>
+
       const form = document.createElement('form')
       form.method = 'POST'
       form.action = data.paymentGateway
@@ -83,7 +92,8 @@ async function buyCreditPackage(id) {
       document.body.appendChild(form)
       form.submit()
     }
-  } catch (error) {
+  } 
+  catch (error) {
     let msg = error.message
 
     if (Object.hasOwn(error.response, 'data')) {
@@ -190,4 +200,5 @@ onMounted(() => {
   />
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+</style>
