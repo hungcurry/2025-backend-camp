@@ -52,7 +52,7 @@ async function getCreditPackageList() {
   }
 }
 
-// 藍新金流購買流程：
+// !藍新金流購買流程：
 async function buyCreditPackage(id) {
   try {
     if (!getDataFromCookieByKey('token')) {
@@ -60,6 +60,15 @@ async function buyCreditPackage(id) {
       return
     }
     const { status, data } = await OrderAPI.postOrder(id)
+
+    // 後端傳過來資料
+    // data: {
+    //   paymentGateway: newebpayConfig.payGateway,
+    //   MerchantID: newebpayConfig.merchantId,
+    //   TradeInfo: encryptedTradeInfo,
+    //   TradeSha: tradeSha,
+    //   Version: newebpayConfig.version
+    // }
     if (status === 'success') {
       // 建立隱藏表單，提交到藍新金流付款頁面
       // 測試用：模擬藍新金流回傳資料

@@ -22,7 +22,8 @@ class SkillController {
         status: 'success',
         data: skill
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -64,7 +65,8 @@ class SkillController {
         status: 'success',
         data: result
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -98,7 +100,8 @@ class SkillController {
         data: result
       })
       res.end()
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }

@@ -11,6 +11,25 @@ const CourseBooking = require('../entities/CourseBooking')
 const CoachLinkSkill = require('../entities/CoachLinkSkill')
 const Order = require('../entities/Order')
 
+// 建立資料庫連線設定
+// const AppDataSource = new DataSource({
+//   type: 'postgres',
+//   host: 'localhost',
+//   port: 5432,
+//   username: 'postgres',
+//   password: 'password',
+//   database: 'school',
+
+//   synchronize: true, // 開發期使用，可自動更新資料表
+//   logging: false,    // 是否輸出 SQL 日誌
+
+//   entities: [
+//     Skill,
+//     Class,
+//   ],
+// })
+// module.exports = AppDataSource
+
 const dataSource = new DataSource({
   type: 'postgres',
   host: config.get('db.host'),

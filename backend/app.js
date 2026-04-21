@@ -2,8 +2,8 @@ const express = require('express')
 const cors = require('cors')
 const path = require('path')
 const pinoHttp = require('pino-http')
-
 const logger = require('./utils/logger')('App')
+// router
 const creditPackageRouter = require('./routes/creditPackage')
 const skillRouter = require('./routes/skill')
 const usersRouter = require('./routes/users')
@@ -29,6 +29,9 @@ app.use(pinoHttp({
 }))
 app.use(express.static(path.join(__dirname, 'public')))
 
+// *Router
+// app.get：直接定義單一路由
+// app.use：引入外部路由模組（Router）
 app.get('/healthcheck', (req, res) => {
   // res.status(200)
   // res.send('OK')

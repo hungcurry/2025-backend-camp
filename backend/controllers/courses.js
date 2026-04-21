@@ -44,7 +44,8 @@ class CoursesController {
           }
         })
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -119,7 +120,8 @@ class CoursesController {
         status: 'success',
         data: null
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -165,7 +167,8 @@ class CoursesController {
         status: 'success',
         data: null
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }

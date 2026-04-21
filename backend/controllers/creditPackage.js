@@ -24,7 +24,8 @@ class CreditPackageController {
         data: creditPackage,
         total: creditPackage.length
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -65,7 +66,8 @@ class CreditPackageController {
         status: 'success',
         data: result
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -101,7 +103,8 @@ class CreditPackageController {
         status: 'success',
         data: null
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -129,7 +132,8 @@ class CreditPackageController {
         status: 'success',
         data: result
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }

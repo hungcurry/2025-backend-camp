@@ -69,7 +69,8 @@ class UsersController {
           }
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('建立使用者錯誤:', error)
       next(error)
     }
@@ -133,7 +134,8 @@ class UsersController {
           }
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('登入錯誤:', error)
       next(error)
     }
@@ -153,7 +155,8 @@ class UsersController {
           user
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('取得使用者資料錯誤:', error)
       next(error)
     }
@@ -193,7 +196,8 @@ class UsersController {
           }
         })
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('取得使用者資料錯誤:', error)
       next(error)
     }
@@ -250,7 +254,8 @@ class UsersController {
           user: result
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('取得使用者資料錯誤:', error)
       next(error)
     }
@@ -325,7 +330,8 @@ class UsersController {
         status: 'success',
         data: null
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('取得使用者資料錯誤:', error)
       next(error)
     }
@@ -405,7 +411,8 @@ class UsersController {
           })
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error('取得使用者資料錯誤:', error)
       next(error)
     }

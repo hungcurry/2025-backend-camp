@@ -49,7 +49,8 @@ class UploadController {
           image_url: 'https://example.com/your-uploaded-image.jpg'
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }

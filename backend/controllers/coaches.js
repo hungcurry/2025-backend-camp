@@ -56,7 +56,8 @@ class CoachesController {
           name: coach.User.name
         }))
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -133,7 +134,8 @@ class CoachesController {
           }
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -207,7 +209,8 @@ class CoachesController {
           skill_name: course.Skill.name
         }))
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }

@@ -25,14 +25,22 @@ class ConfigManager {
     if (!path || typeof path !== 'string') {
       throw new Error(`incorrect path: ${path}`)
     }
+
+    // 範例：如果你傳 'secret.api.key'，它會變成 ['secret', 'api', 'key']。
+    // secret: config.get('secret').jwtSecret,
+    // 在你這次的例子 'secret'，陣列就是 ['secret']。
     const keys = path.split('.')
+
     let configValue = config
     keys.forEach((key) => {
+      // 檢查這個層級有沒有我要的 key
       if (!Object.prototype.hasOwnProperty.call(configValue, key)) {
         throw new Error(`config ${path} not found`)
       }
+      // 如果有，就往下一層鑽進去
       configValue = configValue[key]
     })
+    // 它會把 { jwtSecret: "my_super_secret_key", ... } 丟出來。
     return configValue
   }
 }

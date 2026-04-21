@@ -42,6 +42,9 @@ http://localhost:5173
 
 ~後端：打開 
 http://localhost:8080/healthcheck
+
+~藍新 終端打指令啟動
+ngrok http --url=unparceled-lashay-unmotile.ngrok-free.dev 8080
 ```
 
 
@@ -123,6 +126,36 @@ ngrok http --url=unparceled-lashay-unmotile.ngrok-free.dev 8080
 | `backend/controllers/order.js` | 處理三件事：①建立訂單 ②收到藍新的付款通知 ③把使用者導回前端 |
 | `backend/routes/order.js` | 定義「建立訂單」的 API 路徑，並要求使用者先登入 |
 | `backend/routes/newebpay.js` | 定義藍新「通知」和「導回」的 API 路徑（這兩個不需要登入，因為是藍新伺服器呼叫的） |
+
+```jsx
+第一階段：基礎設施（建立基本認知）
+// ~backend/config/newebpay.js
+// 原因：先看這個。你得知道這台機器連到哪裡（測試/正式環境）、商店代碼是什麼。這是所有邏輯的「燃料」。
+// ~backend/entities/Order.js
+// 原因：了解「訂單」長什麼樣子。有哪些狀態（待付款、已付款、失敗）？
+// 這會決定你在後面 Controller 看到資料操作時的邏輯。
+
+
+第二階段：核心黑盒子（理解加解密規則）
+// ~backend/utils/newebpayEncrypt.js
+// 原因：藍新的串接最難的就是 AES 加密與 SHA256 雜湊。先搞清楚資料是怎麼被封裝成 TradeInfo 的，
+// 後面的流程你就只會把它當成一個「黑盒子工具」來呼叫。
+
+
+第三階段：業務邏輯（看戲劇的主賽道）
+// ~backend/controllers/order.js
+// 原因：這是最重要的檔案。所有的「戲」都在這裡演。
+// 建立訂單時如何呼叫 utils 加密。
+// 收到藍新通知後如何更新資料庫（entities）。
+// 成功後如何執行 redirect。
+
+
+第四階段：對外門牌（確認進入點）
+// ~backend/routes/newebpay.js
+// 原因：看藍新伺服器會從哪個門進來（Notify / Return）。注意這裡通常會跳過 auth 中間件（Middleware），因為藍新伺服器沒有你的登入 Token。
+// ~backend/routes/order.js
+// 原因：最後看使用者怎麼發起結帳。因為這涉及權限控管（JWT 驗證等），放在最後確認安全機制。
+```
 
 
 ## DB指令

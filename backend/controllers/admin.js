@@ -95,7 +95,8 @@ class AdminController {
           course
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -166,7 +167,8 @@ class AdminController {
           }
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -231,7 +233,8 @@ class AdminController {
           }
         })
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -293,7 +296,8 @@ class AdminController {
           meeting_url: course.meeting_url
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -362,7 +366,8 @@ class AdminController {
           course: savedCourse
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -441,7 +446,8 @@ class AdminController {
           coach: savedCoach
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -523,7 +529,8 @@ class AdminController {
           skill_ids: result[0].CoachLinkSkill.map(skill => skill.skill_id)
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -554,7 +561,8 @@ class AdminController {
           skill_ids: coachSkill.length > 0 ? coachSkill.map(({ skill_id: skillId }) => skillId) : []
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
