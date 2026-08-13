@@ -42,7 +42,7 @@ server.on('error', onError)
 server.listen(port, async () => {
   try {
     await dataSource.initialize()
-    logger.info('資料庫連線成功')
+    logger.info('Database connection successful')
     logger.info(`伺服器運作中. port: ${port}`)
   }
   catch (error) {

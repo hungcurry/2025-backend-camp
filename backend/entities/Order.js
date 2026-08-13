@@ -1,86 +1,106 @@
 const { EntitySchema } = require('typeorm')
 
+// 誰有 Foreign Key，誰就是(子表)（Child）
 module.exports = new EntitySchema({
-  name: 'Order', // Entity 名稱
-  tableName: 'ORDER', // 對應資料表名稱
+  name: 'Order', // Entity 名稱 ( 單數 + PascalCase )
+  tableName: 'ORDER', // 對應資料表名稱 ( 複數 + snake_case + 小寫 )
   columns: {
+    // 訂單 ID
     id: {
       primary: true, // 主鍵 (每筆資料唯一)
       type: 'uuid', // UUID 型別
       generated: 'uuid', // 新增資料時自動生成 UUID
       nullable: false // 不可為空值
     },
-    user_id: {
-      type: 'uuid',
-      nullable: false
-    },
-    credit_package_id: {
-      type: 'uuid',
-      nullable: false
-    },
+    // 商店自訂訂單編號
     merchant_order_no: {
       type: 'varchar', // 字串型別
       length: 30, // 最大長度 50
       unique: true, // 唯一性約束
       nullable: false
     },
+    // 方案交易金額 1400 / 2520 / 4800
     amount: {
       type: 'integer', // 整數型別
       nullable: false
     },
+    // 購買的課堂 7 / 14 / 21 堂
     purchased_credits: {
       type: 'integer',
       nullable: false
     },
+    // 付款狀態
     payment_status: {
       type: 'varchar',
       length: 20,
       default: 'unpaid', // 未付款
       nullable: false
     },
+    // 藍新金流交易序號
     newebpay_trade_no: {
       type: 'varchar',
       length: 30,
       nullable: true
     },
+    // 付款方式
     payment_type: {
-      type: 'varchar',
+      type: 'varchar', // CREDIT 信用卡
       length: 20,
       nullable: true
     },
+    // 付款完成時間 : 2026-08-13 15:10:29.446
+    // paid_at：不要加 createDate: true 等金流成功回傳時，再由程式碼手動更新：
     paid_at: {
       type: 'timestamp', // 時間戳記
       nullable: true
     },
+    // 建立時間 : 2026-08-13 07:08:21.312
     createdAt: {
       type: 'timestamp',
       createDate: true,
       name: 'created_at',
       nullable: false
+    },
+    // 外來鍵關聯(FK)
+    // --------------
+    // 使用者 ID
+    user_id: {
+      type: 'uuid',
+      nullable: false
+    },
+    // 課程方案 ID
+    credit_package_id: {
+      type: 'uuid',
+      nullable: false
     }
   },
   relations: {
-    // 與 User 資料表的關聯
+    // 與 User( 使用者資料表 ): 虛擬要連結用的欄位:
     User: {
-      target: 'User', // 目標 Entity，也就是關聯的資料表是 User
+      target: 'User', // 要連到哪個 Entity : User Entity
       type: 'many-to-one', // 關聯型態：多對一 (多個 Order 對應到一個 User)
+      // joinColumn 每個屬性是誰寫誰
+      // 誰有 Foreign Key，誰就是(子表)（Child）
+      // -----------------------------------------------------------------------
+      // | name                     | 自己表(子表)           Order
+      // | referencedColumnName     | 對方表(父表)           User
+      // | foreignKeyConstraintName | constraint 名稱       order_user_id_fk
       joinColumn: {
         // 設定 Join 的資料庫欄位
-        name: 'user_id', // 本表對應的欄位名稱 (Order 表的 user_id)
-        referencedColumnName: 'id', // 對方表 (User) 的主鍵欄位名稱
+        name: 'user_id', // 外來鍵關聯(FK) ( Order 表的 user_id )
+        referencedColumnName: 'id', // 對方表 ( User ) 的主鍵欄位名稱
         foreignKeyConstraintName: 'order_user_id_fk' // 外鍵約束名稱
       }
     },
-
-    // 與 CreditPackage 資料表的關聯
+    // 與 CreditPackage( 課程方案資料表 ): 虛擬要連結用的欄位:
     CreditPackage: {
-      target: 'CreditPackage', // 目標 Entity，是 CreditPackage
-      type: 'many-to-one', // 多個 Order 對應到一個 CreditPackage
+      target: 'CreditPackage', // 要連到哪個 Entity : CreditPackage Entity
+      type: 'many-to-one', // 關聯型態：多對一 (多個 Order 對應到一個 CreditPackage)
       joinColumn: {
         // 設定 Join 的資料庫欄位
-        name: 'credit_package_id', // 本表欄位名稱 (Order 表的 credit_package_id)
-        referencedColumnName: 'id', // 對方表主鍵欄位 (CreditPackage 的 id)
-        foreignKeyConstraintName: 'order_credit_package_id_fk' // 外鍵名稱
+        name: 'credit_package_id', // 外來鍵關聯(FK) ( Order 表的 redit_package_id )
+        referencedColumnName: 'id', // 對方表 ( CreditPackage ) 的主鍵欄位名稱
+        foreignKeyConstraintName: 'order_credit_package_id_fk' // 外鍵約束名稱
       }
     }
   }

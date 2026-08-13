@@ -18,6 +18,9 @@ http://localhost:8080/healthcheck
 
 ### (二).本機開發（不使用 Docker）
 ```bash
+# 徹底砍掉舊資料庫與數據卷
+docker compose down -v
+
 # 1. 啟動資料庫容器
 docker compose up postgres -d
 
@@ -55,14 +58,14 @@ https://hackmd.io/@hexschool/r1-WgwPLbl#Part-2
 
 ~ 測試資料
 // 王小明 學員
-USER
-wXlTq@hexschooltest.io
-Aa12345678
+// USER
+信箱: wXlTq@hexschooltest.io
+密碼: Aa12345678
 
 // 李燕容 教練
-COACH
-lee2000@hexschooltest.io	
-Aa12345678
+// COACH
+信箱: lee2000@hexschooltest.io	
+密碼: Aa12345678
 ```
 
 ## 藍新金流
@@ -103,7 +106,7 @@ ngrok http --url=unparceled-lashay-unmotile.ngrok-free.dev 8080
 | 背面末三碼 | `222` |
 | 持卡人姓名 | 隨意填，例如 `TEST` |
 | 持卡人電話 | 隨意填，例如 `0912345678` |
-| 付款人信箱 | 隨意填 |
+| 付款人信箱 | 隨意填 `ooopp42@gmail.com` |
 
 
 ### (三).金流功能-前端檔案
