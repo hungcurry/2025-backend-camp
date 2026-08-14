@@ -1,7 +1,7 @@
 ## 專案快速啟動
 
 ### (一).使用 Docker
-```bash
+```jsx
 * 啟動 Rancher Desktop
 
 // 特性	start 指令 / restart 指令
@@ -17,24 +17,52 @@ http://localhost:8080/healthcheck
 ```
 
 ### (二).本機開發（不使用 Docker）
-```bash
-# 徹底砍掉舊資料庫與數據卷
+```jsx
+// 1. 啟動/刪除 各專案
+// 全體專案 停止與刪除容器
+docker compose down
+// 全體專案 停止與刪除容器 / 資料Volume
 docker compose down -v
+// 全體專案 停止與刪除容器 / 資料Volume/ Image
+docker compose down -v --rmi all
 
-# 1. 啟動資料庫容器
+// 全體專案 啟動
+docker compose up -d
+
+// 查看目前運行狀態
+docker-compose ps
+
+// 單一服務 : 啟動與刪除
+// --------------------------------------------
+// 單一服務：刪除 (Delete)
+// --------------------------------------------
+// 刪除 [資料庫] (包含容器與 DB 資料 Volume)
+docker compose stop postgres && docker compose rm -f postgres && docker volume rm 2025-backend-camp_pgData
+// 刪除 [前端] 容器
+docker compose stop frontend && docker compose rm -f frontend
+// 刪除 [後端] 容器
+docker compose stop backend && docker compose rm -f backend
+//  --------------------------------------------
+// 單一服務：啟動 (Start / Build)
+// --------------------------------------------
+// 啟動 [資料庫]
 docker compose up postgres -d
+// 啟動/更新 [前端] (加上 --build 確保程式碼更動有生效)
+docker compose up frontend -d --build
+// 啟動/更新 [後端] (加上 --build 確保程式碼更動有生效)
+docker compose up backend -d --build
 
-# 2. 修改 .env 中的 DB_HOST
-# DB_HOST=localhost
-# 然後個複製一份 到frontend/backend 資料夾裡面
+// 2. 修改 .env 中的 DB_HOST
+// DB_HOST=localhost
+// 然後個複製一份 到frontend/backend 資料夾裡面
 
-# 3.啟動後端開發伺服器
+// 3.啟動後端開發伺服器
 cd ..
 cd backend
 npm install
 npm run dev
 
-# 4. 另開終端機，啟動前端開發伺服器
+// 4. 另開終端機，啟動前端開發伺服器
 cd ..
 cd frontend
 npm install
@@ -48,6 +76,18 @@ http://localhost:8080/healthcheck
 
 ~藍新 終端打指令啟動
 ngrok http --url=unparceled-lashay-unmotile.ngrok-free.dev 8080
+
+~徹底砍掉舊資料庫與所有數據(包含前後端所有服務)
+// 重置all +資料庫（刪volume）
+docker compose down -v
+// 啟動all +資料庫（背景執行）
+docker compose up -d
+
+~然後 資料庫用這2條就好
+// 刪除 [資料庫]
+docker compose stop postgres && docker compose rm -f postgres && docker volume rm 2025-backend-camp_pgData
+// 啟動 [資料庫]
+docker compose up postgres -d
 ```
 
 
