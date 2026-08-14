@@ -18,7 +18,7 @@ const {
 
 class OrderController {
   // *建立訂單並產生藍新金流加密資料
-  static async createOrder (req, res, next) {
+  static async createOrder(req, res, next) {
     try {
       console.log('藍新-user', req.user)
       console.log('藍新-params', req.params)
@@ -114,9 +114,17 @@ class OrderController {
         newebpayConfig.returnUrl
       )
       // AES-256-CBC 加密
-      const encryptedTradeInfo = encryptTradeInfo(tradeInfo, newebpayConfig.hashKey, newebpayConfig.hashIV)
+      const encryptedTradeInfo = encryptTradeInfo(
+        tradeInfo,
+        newebpayConfig.hashKey,
+        newebpayConfig.hashIV
+      )
       // SHA256 雜湊產生 TradeSha
-      const tradeSha = createTradeSha(encryptedTradeInfo, newebpayConfig.hashKey, newebpayConfig.hashIV)
+      const tradeSha = createTradeSha(
+        encryptedTradeInfo,
+        newebpayConfig.hashKey,
+        newebpayConfig.hashIV
+      )
 
       console.log(`tradeInfo: ${tradeInfo}`)
       // 格式範例：
@@ -138,15 +146,14 @@ class OrderController {
           Version: newebpayConfig.version // 版本號
         }
       })
-    }
-    catch (error) {
+    } catch (error) {
       logger.error(error)
       next(error)
     }
   }
 
   // 藍新金流付款完成通知（Server to Server）
-  static async handleNotify (req, res, next) {
+  static async handleNotify(req, res, next) {
     try {
       // 1. 從設定檔取得商店的 HashKey 與 HashIV，用於後續驗證與解密
       const newebpayConfig = config.get('newebpay')
@@ -157,7 +164,11 @@ class OrderController {
       // 驗證 TradeSha
       // 3. 自行將 TradeInfo 搭配 Key/IV 再次產生一次 Sha，比對藍新傳過來的是否一致
       // 這是為了確保這筆資料真的是藍新發出的，而不是駭客隨便偽造一個請求過來。
-      const verifyTradeSha = createTradeSha(TradeInfo, newebpayConfig.hashKey, newebpayConfig.hashIV)
+      const verifyTradeSha = createTradeSha(
+        TradeInfo,
+        newebpayConfig.hashKey,
+        newebpayConfig.hashIV
+      )
       if (TradeSha !== verifyTradeSha) {
         logger.error('TradeSha 驗證失敗')
         res.status(400).send('驗證失敗')
@@ -166,7 +177,11 @@ class OrderController {
 
       // 解密 TradeInfo
       // 4. 使用 AES-256-CBC 進行解密，將加密字串轉回 JSON 格式的物件
-      const decryptedData = decryptTradeInfo(TradeInfo, newebpayConfig.hashKey, newebpayConfig.hashIV)
+      const decryptedData = decryptTradeInfo(
+        TradeInfo,
+        newebpayConfig.hashKey,
+        newebpayConfig.hashIV
+      )
       logger.info('藍新回傳解密資料：', decryptedData)
 
       // 5. 解出具體的交易資訊
@@ -241,8 +256,7 @@ class OrderController {
 
       // 12. 最後必須回傳字串 "OK" 給藍新伺服器，否則藍新會認為發送失敗而持續重發。
       res.status(200).send('OK')
-    }
-    catch (error) {
+    } catch (error) {
       // 13. 異常錯誤捕捉，避免 Server 崩潰
       logger.error(error)
       next(error)
@@ -250,7 +264,7 @@ class OrderController {
   }
 
   // 藍新金流付款完成導回（使用者瀏覽器導向）
-  static async handleReturn (req, res, next) {
+  static async handleReturn(req, res, next) {
     try {
       // 1. 取得金流配置資訊
       const newebpayConfig = config.get('newebpay')
@@ -260,17 +274,27 @@ class OrderController {
 
       // 驗證 TradeSha
       // 3. 確保這份資料沒有被第三方篡改
-      const verifyTradeSha = createTradeSha(TradeInfo, newebpayConfig.hashKey, newebpayConfig.hashIV)
+      const verifyTradeSha = createTradeSha(
+        TradeInfo,
+        newebpayConfig.hashKey,
+        newebpayConfig.hashIV
+      )
       if (TradeSha !== verifyTradeSha) {
         logger.error('ReturnURL TradeSha 驗證失敗')
         // 若驗證失敗，直接導向前端失敗頁面
-        res.redirect(`${newebpayConfig.frontendUrl}/payment-result?status=failed`)
+        res.redirect(
+          `${newebpayConfig.frontendUrl}/payment-result?status=failed`
+        )
         return
       }
 
       // 解密 TradeInfo 取得訂單編號與付款狀態
       // 4. 解析藍新回傳的原始 JSON 資料
-      const decryptedData = decryptTradeInfo(TradeInfo, newebpayConfig.hashKey, newebpayConfig.hashIV)
+      const decryptedData = decryptTradeInfo(
+        TradeInfo,
+        newebpayConfig.hashKey,
+        newebpayConfig.hashIV
+      )
       const { Status, Result } = decryptedData
       const { MerchantOrderNo } = Result
 
@@ -290,12 +314,15 @@ class OrderController {
       // 7. 將使用者重新導向 (Redirect) 到 Vue 前端專案的結果頁面
       // 帶上 status 與 訂單編號讓前端顯示給使用者看
       // http://localhost:5173/payment-result?status=success&orderNo=1775027609294w9hh
-      res.redirect(`${newebpayConfig.frontendUrl}/payment-result?status=${status}&orderNo=${MerchantOrderNo}`)
-    }
-    catch (error) {
+      res.redirect(
+        `${newebpayConfig.frontendUrl}/payment-result?status=${status}&orderNo=${MerchantOrderNo}`
+      )
+    } catch (error) {
       // 8. 發生任何非預期錯誤時，導向失敗頁面
       logger.error(error)
-      res.redirect(`${config.get('newebpay').frontendUrl}/payment-result?status=failed`)
+      res.redirect(
+        `${config.get('newebpay').frontendUrl}/payment-result?status=failed`
+      )
     }
   }
 }
