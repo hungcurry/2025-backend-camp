@@ -51,12 +51,12 @@ module.exports = new EntitySchema({
     // 付款完成時間 : 2026-08-13 15:10:29.446
     // paid_at：不要加 createDate: true 等金流成功回傳時，再由程式碼手動更新：
     paid_at: {
-      type: 'timestamp', // 時間戳記
+      type: 'timestamptz', // 時間戳記
       nullable: true
     },
     // 建立時間 : 2026-08-13 07:08:21.312
     createdAt: {
-      type: 'timestamp',
+      type: 'timestamptz',
       createDate: true,
       name: 'created_at',
       nullable: false

@@ -20,7 +20,7 @@ module.exports = new EntitySchema({
       nullable: false // 不可以為空值
     },
     createdAt: {
-      type: 'timestamp', // 時間戳記型別
+      type: 'timestamptz', // 時間戳記型別
       createDate: true, // 【自動化關鍵】這行告訴 TypeORM：當資料「第一次存入」時，自動填入現在時間
       name: 'created_at', // 對應到資料庫欄位名為 created_at (通常資料庫偏好底線命名)
       nullable: false // 不可以為空值

@@ -19,23 +19,23 @@ module.exports = new EntitySchema({
       nullable: false
     },
     bookingAt: {
-      type: 'timestamp',
+      type: 'timestamptz',
       createDate: true,
       name: 'booking_at',
       nullable: false
     },
     joinAt: {
-      type: 'timestamp',
+      type: 'timestamptz',
       name: 'join_at',
       nullable: true
     },
     leaveAt: {
-      type: 'timestamp',
+      type: 'timestamptz',
       name: 'leave_at',
       nullable: true
     },
     cancelledAt: {
-      type: 'timestamp',
+      type: 'timestamptz',
       name: 'cancelled_at',
       nullable: true
     },
@@ -45,7 +45,7 @@ module.exports = new EntitySchema({
       nullable: true
     },
     createdAt: {
-      type: 'timestamp',
+      type: 'timestamptz',
       createDate: true,
       name: 'created_at',
       nullable: false

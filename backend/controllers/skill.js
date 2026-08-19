@@ -14,9 +14,7 @@ class SkillController {
     try {
       // 去資料庫撈資料（這就是 SELECT！）
       // .find() = SQL 的 SELECT
-      const skill = await dataSource.getRepository('Skill').find({
-        select: ['id', 'name']
-      })
+      const skill = await dataSource.getRepository('Skill').find()
       // 回傳給前端
       res.status(200).json({
         status: 'success',

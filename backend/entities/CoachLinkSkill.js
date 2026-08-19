@@ -19,7 +19,7 @@ module.exports = new EntitySchema({
       nullable: false
     },
     created_at: {
-      type: 'timestamp',
+      type: 'timestamptz',
       createDate: true,
       nullable: false
     }

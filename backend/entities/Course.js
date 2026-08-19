@@ -27,11 +27,11 @@ module.exports = new EntitySchema({
       nullable: false
     },
     start_at: {
-      type: 'timestamp',
+      type: 'timestamptz',
       nullable: false
     },
     end_at: {
-      type: 'timestamp',
+      type: 'timestamptz',
       nullable: false
     },
     max_participants: {
@@ -44,12 +44,12 @@ module.exports = new EntitySchema({
       nullable: false
     },
     created_at: {
-      type: 'timestamp',
+      type: 'timestamptz',
       createDate: true,
       nullable: false
     },
     updated_at: {
-      type: 'timestamp',
+      type: 'timestamptz',
       updateDate: true,
       nullable: false
     }
