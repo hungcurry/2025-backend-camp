@@ -1,21 +1,25 @@
 {
-    "env": {
-        "commonjs": true,
-        "es2021": true,
-        "node": true,
-        "mocha":true,
-        "jest": true
-    },
-    "extends": "standard",
-    "parserOptions": {
-        "ecmaVersion": 12
-    },
-    "rules": {
-        "no-restricted-syntax": ["error", "WithStatement", "BinaryExpression[operator='in']"],
-        "max-len": ["error", { "code": 160 }],
-        "brace-style": "off",
-        // 蓋掉 standard 規範預設的空格要求，將函式括號排版完全交給 Prettier 處理
-        "space-before-function-paren": "off"
-    },
-    "ignorePatterns": ["migrations/**/*.js"]
+  "env": {
+    "commonjs": true,
+    "es2021": true,
+    "node": true,
+    "mocha": true,
+    "jest": true
+  },
+  "extends": "standard",
+  "parserOptions": {
+    "ecmaVersion": 12
+  },
+  "rules": {
+    "no-restricted-syntax": [
+      "error",
+      "WithStatement",
+      "BinaryExpression[operator='in']"
+    ],
+    "max-len": ["error", { "code": 160 }],
+    "brace-style": "off",
+    // 蓋掉 standard 規範預設的空格要求，將函式括號排版完全交給 Prettier 處理
+    "space-before-function-paren": "off"
+  },
+  "ignorePatterns": ["migrations/**/*.js"]
 }

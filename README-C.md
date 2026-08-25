@@ -240,10 +240,23 @@ purchaseAt : 2026-08-17 14:25:39.671 +0800 : UTC+8
 https://hackmd.io/HYBMkvilRlWKrnFD7cGfrA
 
 ~啟動指令: ngrok 指令 (啟動後 才可以連-藍新金流)
+~公司防毒會擋 用下面新方式
 // 確保 Docker 已啟動（backend 跑在 port 8080），然後開另一個終端機執行：
 // ngrok http --url=你的domain名稱 8080
 // ngrok 執行後不要關閉這個終端機視窗，它需要一直開著。
 ngrok http --url=unparceled-lashay-unmotile.ngrok-free.dev 8080
+```
+
+> 使用 VS Code 
+```jsx
+// 使用 VS Code 內建的 Port Forwarding（免指令）
+如果你是用 VS Code 開發：
+* 切換到底部的 「連接埠 (Ports)」 分頁（在 Terminal / 終端機旁邊）。
+* 點擊 「轉發連接埠 (Forward a Port)」。
+* 輸入 8080。
+* 在「可見度 (Visibility)」按右鍵改為 「公開 (Public)」（藍新金流 Webhook 才能打得進來）。
+* 複製「轉發位址 (Forwarded Address)」即為對外 HTTPS 網址。
+* 然後貼到 藍新的2個網址
 ```
 
 ### (二).測試卡號

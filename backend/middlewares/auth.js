@@ -29,10 +29,19 @@ function formatVerifyError (jwtError) {
 function verifyJWT (token, secret) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, secret, (error, decoded) => {
-      if (error) {
-        reject(formatVerifyError(error))
-      } else {
+      // 是 jwt.verify() 驗證完成後呼叫的 回呼函式
+      // -------
+      // (error, decoded) => {
+      //   // jwt.verify 驗證完之後，這裡會被執行
+      // }
+      // error : 驗證有沒有錯誤
+      // decoded : 驗證成功後，JWT 裡面的資料
+
+      if (!error) {
         resolve(decoded)
+      }
+      else {
+        reject(formatVerifyError(error))
       }
     })
   })
@@ -60,17 +69,20 @@ module.exports = ({ secret, userRepository, logger = console }) => {
 
   // 實際的 Express Middleware
   return async (req, res, next) => {
-    // 1. 檢查 Authorization Header 格式 (需為 Bearer Token)
+    // 1. Header 檢查: Authorization Header 格式 (需為 Bearer Token)
     if (!req.headers || !req.headers.authorization || !req.headers.authorization.startsWith('Bearer')) {
       logger.warn('[AuthV2] Missing authorization header.')
+      // status: 401 與 message: '請先登入' 的 Error 物件
+      // 直接將錯誤傳給「全域錯誤處理中介軟體（Error-Handling Middleware）」
       next(generateError(PERMISSION_DENIED_STATUS_CODE, FailedMessageMap.missing))
       return
     }
-
-    // 2. 解析 Token 內容
+    // 2. Token 檢查: 解析 Token 內容
     const [, token] = req.headers.authorization.split(' ')
     if (!token) {
       logger.warn('[AuthV2] Missing token.')
+      // status: 401 與 message: '請先登入' 的 Error 物件
+      // 直接將錯誤傳給「全域錯誤處理中介軟體（Error-Handling Middleware）」
       next(generateError(PERMISSION_DENIED_STATUS_CODE, FailedMessageMap.missing))
       return
     }
@@ -87,7 +99,8 @@ module.exports = ({ secret, userRepository, logger = console }) => {
       // 5. 注入使用者資訊至 Request 物件，供後續 Controller 使用
       req.user = user
       next()
-    } catch (error) {
+    }
+    catch (error) {
       // 6. 捕捉 JWT 過期或簽章錯誤等例外
       logger.error(`[AuthV2] ${error.message}`)
       next(error)

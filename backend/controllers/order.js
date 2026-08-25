@@ -20,6 +20,7 @@ class OrderController {
   // *建立訂單並產生藍新金流加密資料
   static async createOrder(req, res, next) {
     try {
+      // 這裡的user 是因為通過auth.js驗證,會從req裡面取得user資料
       console.log('藍新-user', req.user)
       console.log('藍新-params', req.params)
 
@@ -75,12 +76,13 @@ class OrderController {
        * 8. orderRepo.save: 執行 SQL INSERT，將資料正式寫入資料庫。
        */
       const orderRepo = dataSource.getRepository('Order')
+      // 先 create 建立實例，再用 save 寫入資料庫
       const newOrder = orderRepo.create({
         user_id: userId,
-        credit_package_id: creditPackageId,
-        merchant_order_no: merchantOrderNo,
-        amount,
-        purchased_credits: creditPackage.credit_amount,
+        credit_package_id: creditPackageId, // 購買方案id
+        merchant_order_no: merchantOrderNo, // 商店訂單編號
+        amount, // 金額
+        purchased_credits: creditPackage.credit_amount, // 堂數
         payment_status: 'unpaid'
       })
       await orderRepo.save(newOrder)
@@ -127,13 +129,13 @@ class OrderController {
       )
 
       console.log(`tradeInfo: ${tradeInfo}`)
-      // 格式範例：
+      // 交易資料 格式範例：
       // Result: MerchantID=MS123456&Amt=100&MerchantOrderNo=20260410001&ItemDesc=點數卡...
       console.log(`encryptedTradeInfo: ${encryptedTradeInfo}`)
-      // 格式範例：
+      // 加密資料 格式範例：
       // Result: "3bdfefc03489d1031aa8eb79c9e99f77cb5f45c87ec5f90748"....
       console.log(`tradeSha: ${tradeSha}`)
-      // 格式範例：
+      // 雜湊資料 格式範例：
       // Result: "52E6E56A67FCD81FE1DCA46ACCAA24D1"... (固定長度的雜湊值)"
 
       res.status(200).json({
@@ -146,7 +148,8 @@ class OrderController {
           Version: newebpayConfig.version // 版本號
         }
       })
-    } catch (error) {
+    }
+    catch (error) {
       logger.error(error)
       next(error)
     }
@@ -228,7 +231,7 @@ class OrderController {
         await orderRepo.update(order.id, {
           payment_status: 'paid',
           newebpay_trade_no: TradeNo,
-          payment_type: PaymentType,
+          payment_type: PaymentType, // CREDIT
           paid_at: new Date().toISOString()
         })
 
@@ -237,15 +240,16 @@ class OrderController {
         const creditPurchaseRepo = dataSource.getRepository('CreditPurchase')
         const newPurchase = creditPurchaseRepo.create({
           user_id: order.user_id,
-          credit_package_id: order.credit_package_id,
-          purchased_credits: order.purchased_credits,
-          price_paid: Amt,
+          credit_package_id: order.credit_package_id, // 購買方案id
+          purchased_credits: order.purchased_credits, // 堂數
+          price_paid: Amt, // 價格
           purchaseAt: new Date().toISOString()
         })
         await creditPurchaseRepo.save(newPurchase)
 
         logger.info(`訂單 ${MerchantOrderNo} 付款成功`)
-      } else {
+      }
+      else {
         // 更新訂單狀態為付款失敗
         // 如果 Status 不是 SUCCESS，將訂單標記為失敗
         await orderRepo.update(order.id, {
@@ -256,7 +260,8 @@ class OrderController {
 
       // 12. 最後必須回傳字串 "OK" 給藍新伺服器，否則藍新會認為發送失敗而持續重發。
       res.status(200).send('OK')
-    } catch (error) {
+    }
+    catch (error) {
       // 13. 異常錯誤捕捉，避免 Server 崩潰
       logger.error(error)
       next(error)
@@ -295,6 +300,8 @@ class OrderController {
         newebpayConfig.hashKey,
         newebpayConfig.hashIV
       )
+      // Status: 交易狀態 (SUCCESS 代表藍新那邊扣款成功)
+      // Result: 包含訂單編號、藍新序號、金額等詳細內容
       const { Status, Result } = decryptedData
       const { MerchantOrderNo } = Result
 
@@ -317,7 +324,8 @@ class OrderController {
       res.redirect(
         `${newebpayConfig.frontendUrl}/payment-result?status=${status}&orderNo=${MerchantOrderNo}`
       )
-    } catch (error) {
+    }
+    catch (error) {
       // 8. 發生任何非預期錯誤時，導向失敗頁面
       logger.error(error)
       res.redirect(
