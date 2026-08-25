@@ -8,31 +8,31 @@ import { jwtDecode } from 'jwt-decode'
 const routes = [
   {
     path: '/',
-    component: () => import('@/pages/public/HomeView.vue'),
+    component: () => import('@/pages/public/HomeView.vue')
   },
   {
     path: '/coaches',
-    component: () => import('@/pages/public/CoachesView.vue'),
+    component: () => import('@/pages/public/CoachesView.vue')
   },
   {
     path: '/coaches/:coachId',
-    component: () => import('@/pages/public/CoachDetail.vue'),
+    component: () => import('@/pages/public/CoachDetail.vue')
   },
   {
     path: '/fitness-plans',
-    component: () => import('@/pages/public/FitnessPlans.vue'),
+    component: () => import('@/pages/public/FitnessPlans.vue')
   },
   {
     path: '/payment-result',
-    component: () => import('@/pages/public/PaymentResult.vue'),
+    component: () => import('@/pages/public/PaymentResult.vue')
   },
   {
     path: '/login',
-    component: () => import('@/pages/public/auth/LoginView.vue'),
+    component: () => import('@/pages/public/auth/LoginView.vue')
   },
   {
     path: '/signup',
-    component: () => import('@/pages/public/auth/SignupView.vue'),
+    component: () => import('@/pages/public/auth/SignupView.vue')
   },
   {
     path: '/user',
@@ -42,17 +42,17 @@ const routes = [
     children: [
       {
         path: 'dashboard',
-        component: () => import('@/pages/user/DashboardView.vue'),
+        component: () => import('@/pages/user/DashboardView.vue')
       },
       {
         path: 'profile',
-        component: () => import('@/pages/user/ProfileView.vue'),
+        component: () => import('@/pages/user/ProfileView.vue')
       },
       {
         path: 'orders',
-        component: () => import('@/pages/user/OrdersView.vue'),
-      },
-    ],
+        component: () => import('@/pages/user/OrdersView.vue')
+      }
+    ]
   },
   {
     path: '/coach',
@@ -62,17 +62,17 @@ const routes = [
     children: [
       {
         path: 'profile',
-        component: () => import('@/pages/coach/ProfileView.vue'),
+        component: () => import('@/pages/coach/ProfileView.vue')
       },
       {
         path: 'courses',
-        component: () => import('@/pages/coach/CoursesView.vue'),
+        component: () => import('@/pages/coach/CoursesView.vue')
       },
       {
         path: 'earnings',
-        component: () => import('@/pages/coach/EarningsView.vue'),
-      },
-    ],
+        component: () => import('@/pages/coach/EarningsView.vue')
+      }
+    ]
   },
   {
     path: '/admin',
@@ -82,22 +82,22 @@ const routes = [
     children: [
       {
         path: 'dashboard',
-        component: () => import('@/pages/admin/DashboardView.vue'),
+        component: () => import('@/pages/admin/DashboardView.vue')
       },
       {
         path: 'skills',
-        component: () => import('@/pages/admin/SkillsView.vue'),
+        component: () => import('@/pages/admin/SkillsView.vue')
       },
       {
         path: 'promote-trainer',
-        component: () => import('@/pages/admin/PromoteTrainer.vue'),
-      },
-    ],
+        component: () => import('@/pages/admin/PromoteTrainer.vue')
+      }
+    ]
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/',
-  },
+    redirect: '/'
+  }
 ]
 
 const router = createRouter({
@@ -108,7 +108,7 @@ const router = createRouter({
       return savedPosition
     }
     return { top: 0 }
-  },
+  }
 })
 
 router.beforeEach(async (to, _from, next) => {
@@ -148,10 +148,9 @@ async function getProfile(token) {
     const { setCurrentUser } = useUserStore()
     setCurrentUser({
       name: data.user.name,
-      role,
+      role
     })
-  } 
-  catch (error) {
+  } catch (error) {
     let msg = error.message
 
     if (Object.hasOwn(error.response, 'data')) {
